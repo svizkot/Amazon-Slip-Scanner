@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171B20">
-<title>AMZ Credit Audit | Slip Scanner V3.4</title>
+<title>AMZ Credit Audit | Slip Scanner V3.5</title>
 <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -28,7 +28,7 @@
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.4</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">บันทึก Excel</button><button class="btn good" id="shareXlsx">แชร์ Excel (มือถือ)</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
+<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.5</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">บันทึก Excel</button><button class="btn good" id="shareXlsx">แชร์ Excel (มือถือ)</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
 <div id="lineBrowserHelp" class="lineHelp" hidden>
   <strong>⚠️ เปิดผ่าน LINE: อาจดาวน์โหลดไฟล์ Excel ไม่ได้</strong>
   <span>กดเมนู ⋮ ของ LINE แล้วเลือก <b>เปิดในเบราว์เซอร์อื่น</b> (Chrome หรือ Samsung Internet) หรือใช้ปุ่ม <b>แชร์ Excel (มือถือ)</b> ถ้าเครื่องรองรับการส่งไฟล์ <b>ข้อมูลที่สแกนใน LINE ไม่ย้ายไป Chrome อัตโนมัติ</b> ถ้ามีข้อมูลแล้ว ให้คัดลอกข้อมูลสำรองด้านล่างก่อนเปลี่ยนเบราว์เซอร์</span>
@@ -36,7 +36,8 @@
 </div>
 <main class="wrap">
 <div class="notice">ระบบนี้อ่านด้วย OCR บนอุปกรณ์ของคุณ ไม่อัปโหลดภาพไปยังเซิร์ฟเวอร์ของแอพ แต่ต้องดาวน์โหลดไลบรารี OCR และโมเดลภาษาจากผู้ให้บริการ CDN เมื่อออนไลน์ <strong>ข้อมูล OCR เป็นข้อมูลรอตรวจสอบ</strong> ต้องยืนยันก่อนนำเข้ายอดรายวัน และอาจอ่าน 118.00 เป็น 118.60 ได้ และไม่ควรเก็บเลขบัตรเต็มในแอพ</div>
-<div class="stats"><div class="stat"><div class="lbl">OCR แยกได้ (รวมรอตรวจ)</div><strong id="statCount">0</strong><span class="unit">รายการ (ไม่รวมสรุปซ้ำ)</span></div><div class="stat"><div class="lbl">ยอด EDC ยืนยันแล้ว</div><strong id="statTotal">0.00</strong><span class="unit">บาท • ไม่นำ OCR ที่ยังไม่ตรวจลงยอดรายวัน</span></div><div class="stat"><div class="lbl">รายการรอตรวจสอบ</div><strong id="statReview">0</strong><span class="unit" id="pendingOCRTotal">ยอด OCR รอตรวจ 0.00 บาท</span></div><div class="stat"><div class="lbl">ส่วนต่าง Settlement</div><strong id="statDiff">—</strong><span class="unit">แสดงเมื่อไม่มี OCR รอตรวจ</span></div></div>
+<div class="stats"><div class="stat"><div class="lbl">OCR แยกได้ (เฉพาะวันที่เลือก)</div><strong id="statCount">0</strong><span class="unit">รายการ (ไม่รวมสรุปซ้ำ)</span></div><div class="stat"><div class="lbl">ยอด EDC ยืนยันแล้ว</div><strong id="statTotal">0.00</strong><span class="unit">บาท • ไม่นำ OCR ที่ยังไม่ตรวจลงยอดรายวัน</span></div><div class="stat"><div class="lbl">รายการรอตรวจสอบ</div><strong id="statReview">0</strong><span class="unit" id="pendingOCRTotal">ยอด OCR รอตรวจ 0.00 บาท</span></div><div class="stat"><div class="lbl">ส่วนต่าง Settlement</div><strong id="statDiff">—</strong><span class="unit">แสดงเมื่อไม่มี OCR รอตรวจ</span></div></div>
+<div class="notice" id="globalOcrBanner" style="margin:10px 0 16px;background:#202e3a;border-color:#476781;color:#d9efff" role="status">รายการ OCR ทุกวัน: ยังไม่มีข้อมูล</div>
 <div class="gridtop">
 <section class="panel noPrint"><h2>1. อัปโหลดภาพ / เปิดกล้อง</h2><p class="hint">รองรับหลายภาพ • <strong>ภาพตัวอย่างของคุณ:</strong> S__21823495_0.jpg = รายงาน POS/QR, S__21823496_0.jpg = ม้วนสลิป EDC DETAIL REPORT • เมื่อพบม้วน DETAIL REPORT ยาว ระบบจะอ่านม้วนนั้นเป็นหลัก และไม่บวกใบ Settlement กับใบสำเนาด้านข้างซ้ำ • หากข้อความเล็กเกินไปควรถ่ายใกล้ขึ้น ให้ความกว้างม้วนอย่างน้อย 600 พิกเซล</p>
 <label class="drop" for="slipFiles"><strong>📷 เลือกรูปจากเครื่อง (ได้หลายภาพ)</strong><small>JPG, PNG, WEBP • เลือกภาพถ่ายรวมกระดาษได้</small></label><input class="filehidden" type="file" accept="image/*" multiple id="slipFiles">
@@ -74,7 +75,7 @@
 </section>
 <section class="panel noPrint" style="margin-top:16px;display:none" id="ocrPanel"><h2>5. ข้อความ OCR และเหตุผลการคัดกรอง</h2><pre id="ocrDump" style="white-space:pre-wrap;word-wrap:break-word;color:#b8c9d6;font-size:.78rem;max-height:360px;overflow:auto"></pre></section>
 <section class="panel noPrint" style="margin-top:16px"><h2>วิธีใช้งานและข้อจำกัดสำคัญ</h2><div class="helpdetails"><p><strong>การสแกน:</strong> อัปโหลดรูป → กดสแกนเอกสารทั้งหมด → ตรวจแต่ละแถว → ปรับข้อมูลที่ OCR อ่านผิด → ใส่ยอด Settlement → ส่งออก Excel หรือ PDF หากกระดาษติดกันจนตัดผิด ให้ใช้ “เลือกกรอบในภาพ” สแกนแยก</p><p><strong>ไม่เดาข้อมูล:</strong> “KBank” บนเครื่องรับบัตรคือธนาคารผู้รับชำระ (Acquirer) ไม่ได้แปลว่าบัตรลูกค้าทุกใบออกโดย KBank และหมายเลข MID/TID ไม่ใช่เลขบัญชีธนาคารรับเงินจริง</p><p><strong>เลขบัตร:</strong> ระบบแสดงเฉพาะรูปแบบปิดบัง หาก OCR ได้เลขบัตรเต็มจะตัดให้เหลือ 4 หลักท้าย ห้ามเก็บ CVV หรือข้อมูลบัตรเต็ม</p><p><strong>ป้องกันยอดซ้ำ:</strong> ระบบรับเฉพาะบล็อก SALE/SALES ที่มีจำนวนเงินและหลักฐานธุรกรรม, พยายามจับ TRACE ซ้ำ และกันรายงานสรุป TOTAL/SETTLEMENT ออก แต่ภาพมุมเอียง/ไม่ชัดอาจต้องแก้เอง</p><p><strong>ข้อมูล:</strong> เก็บรายการไว้ใน localStorage ของเบราว์เซอร์เครื่องนั้นเท่านั้น การล้างข้อมูลเว็บอาจทำให้ข้อมูลหาย ควรสำรอง JSON หรือ Excel เป็นระยะ</p><p><strong>การเปิดใช้งาน:</strong> ตั้งชื่อไฟล์นี้เป็น index.html แล้วนำไปวางใน GitHub Pages repository เดิม เปิดผ่าน HTTPS เพื่อให้กล้องมือถือใช้งานได้ OCR ต้องเชื่อมอินเทอร์เน็ตตอนโหลดโมเดล</p></div></section>
-<div class="foot">AMZ Credit Audit V3.4 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
+<div class="foot">AMZ Credit Audit V3.5 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
 </main>
 <script>
 'use strict';
@@ -98,7 +99,7 @@ const examples=[
 function groupOf(kind){return /jcb/i.test(kind)?'JCB':/blue/i.test(kind)?'KBANK-CARD':/master/i.test(kind)?'MASTERCARD':/visa/i.test(kind)?'VISA-CARD':'ยังไม่จำแนก';}
 function blankRecord(){return {date:'',time:'',type:'ไม่ทราบ',trace:'',masked:'',group:'ยังไม่จำแนก',sender:'ไม่ปรากฏ',issuer:'ไม่ปรากฏ',acquirer:'KBank (เครื่อง EDC)',receiver:'Café Amazon',receiverAccount:'ไม่ปรากฏ',amount:0,status:'ตรวจสอบ',source:'กรอกมือ'};}
 function safeMask(s){let x=String(s||'').trim(); if(!x)return '';const digits=x.replace(/\D/g,'');if(digits.length>=12&&!x.includes('*')&&!x.includes('X'))return '**** **** **** '+digits.slice(-4);return x.replace(/\b\d{12,19}\b/g,m=>'**** **** **** '+m.slice(-4));}
-// V3.4: do not trust confirmation labels imported from older OCR versions.
+// V3.5: do not trust confirmation labels imported from older OCR versions.
 function criticalRecordIssues(r){
  const issues=[];
  if(!dayFromDate(r.date))issues.push('วันที่ไม่ถูกต้อง');
@@ -210,6 +211,10 @@ function refTotal(){let n=parseFloat($('settlementInput').value);return $('settl
 function currentTotal(){return rowsForDay(dayKey()).reduce((n,r)=>n+(Number(r.amount)||0),0)}
 function render(){const total=currentTotal(),ref=refTotal(), confirmed=rowsForDay(dayKey()), all=scannedRowsForDay(dayKey()),pending=all.filter(r=>r.status!=='ยืนยัน'),pendingAmount=pending.reduce((n,r)=>n+(Number(r.amount)||0),0);
 $('statCount').textContent=all.length;
+const globalBadDate=records.filter(r=>!dayFromDate(r.date));
+const globalOtherDay=records.filter(r=>dayFromDate(r.date)&&dayFromDate(r.date)!==dayKey());
+const globalPending=records.filter(r=>r.status==='ตรวจสอบ');
+$('globalOcrBanner').textContent=`📋 ทะเบียนทุกวัน ${records.length} รายการ • วันที่เลือก (${currentDayTitle()}) ${all.length} รายการ • วันที่ไม่ถูกต้อง ${globalBadDate.length} รายการ • อยู่วันอื่น ${globalOtherDay.length} รายการ • รอตรวจทั้งหมด ${globalPending.length} รายการ`+(globalBadDate.length||globalOtherDay.length?' — จึงอาจเห็น KPI ด้านบนเป็น 0 แม้สแกนพบรายการแล้ว • เลื่อนลงดูทะเบียนสลิปทุกวัน':'');
 $('statTotal').textContent=money(total);
 $('statReview').textContent=pending.length;
 $('pendingOCRTotal').textContent='ยอด OCR รอตรวจ '+money(pendingAmount)+' บาท';
@@ -242,9 +247,13 @@ function extractCard(s){const m=String(s).match(/\b\d{4}\s+\d{2}[Xx*]{2}\s+[Xx*]
 function classify(text){const s=String(text||'').toUpperCase();
  if(/QR\s*API\s*SETTLEMENT|TOTAL\s*\(POS\)|TOTAL\s*\(KBANK\)|PAYMENT\s+DETAIL|QR\s*PAYMENT\s*\(API\)|TOTAL\s+BILLS/i.test(s))return 'POS / QR SUMMARY';
  const traceHits=(s.match(/\bTRACE\b/g)||[]).length;
- if((/DETAIL\s+REPORT|CARD\s+NUMBER|CARD\s+NO/.test(s)||traceHits>=2||(s.match(/\bSALE\b/g)||[]).length>=3)&&/\bSALE(?:S)?\b/.test(s))return 'EDC DETAIL';
+ // OCR often inserts a stray character before SALE (2SALE, SSALE). Match the same
+ // forms as the transaction parser, but never confuse SETTLEMENT sales summaries.
+ const saleHits=(s.match(/(?:^|[^A-Z])(?:S?SALE(?:S)?)\s*(?:THB\s*)?(?:\d{1,3}(?:,\d{3})*\.\d{2})/gim)||[]).length;
+ const isDetail=/DETAIL\s+REPORT|CARD\s+NUMBER|CARD\s+NO/.test(s)||traceHits>=2||(/TRACE\s*NO/.test(s)&&saleHits>=2);
+ if(isDetail&&saleHits>=1)return 'EDC DETAIL';
  if(/SETTLEMENT|GRAND\s+TOTAL|TOTAL\s+SALES/.test(s))return 'EDC SETTLEMENT';
- if(/\bSALE(?:S)?\b/.test(s)&&/(?:THB|\d+\.\d{2})/.test(s)&&/\bTRACE\b|CARD\s+(?:NO|NUMBER)/.test(s))return 'EDC RECEIPT';
+ if(saleHits>=1&&/(?:THB|\d+\.\d{2})/.test(s)&&(/\bTRACE\b|CARD\s+(?:NO|NUMBER)/.test(s)))return 'EDC RECEIPT';
  return 'OTHER';}
 function cleanOcrText(raw){return String(raw||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').replace(/[‐‑–—]/g,'-').replace(/\bS[ A]{0,4}A[ L]{0,4}L[ E]{0,4}E\b/gi,'SALE');}
 // Parse transaction blocks; summary SALES and group totals are not customer transactions.
@@ -253,7 +262,7 @@ const cleaned=cleanOcrText(text),type=classify(cleaned),items=[];
 if(['POS / QR SUMMARY','EDC SETTLEMENT','OTHER'].includes(type))return {type,items};
 const lines=cleaned.split('\n');let prior='',block=[],lastSale=-1;
 const isSummaryLine=s=>/\b(?:GRAND\s+TOTAL|SUB\s*TOTAL|REFUNDS|VOID\s+REFUND|SETTLEMENT\s+SUCCESS|SETTLEMENT\s+SUMMARY|CARD\s+NAME|TOTAL\s+SALES)\b/i.test(s);
-const saleRE=/\b(SALES?)\s*(?:THB\s*)?(?:฿\s*)?((?:\d{1,3},)?\d{1,6}\.\d{2})\s*(?:THB)?\b/ig;
+const saleRE=/(?:^|[^A-Za-z])(?:S?SALE(?:S)?)\s*(?:THB\s*)?(?:฿\s*)?((?:\d{1,3},)?\d{1,6}\.\d{2})\s*(?:THB)?\b/gim;
 // For detail reports, stop at card-type settlement totals and grand totals.
 for(let li=0;li<lines.length;li++){
 const line=lines[li].trim();if(!line)continue;
@@ -265,21 +274,23 @@ const matches=[...line.matchAll(saleRE)];
 if(matches.length){
 for(const mt of matches){
  const prefix=line.slice(0,mt.index),context=[...block.slice(-12),prefix].join('\n');
- const amount=Number(mt[2].replace(/,/g,''));if(!(amount>0&&amount<100000))continue;
+ const amount=Number(mt[1].replace(/,/g,''));if(!(amount>0&&amount<100000))continue;
  // Never accept SALE rows without at least one transaction identifier; bank totals lack these.
  // Detail Report columns often show TRACE NO only once in the header.
  // Transaction rows contain a bare six-digit trace immediately before DATE.
  let trace=(context.match(/TRACE\s*(?:NO\.?|#|:)?\s*[:#]?\s*(\d{4,9})/i)||[])[1]||'';
  if(!trace){const around=context.split('\n');const dateAt=around.findLastIndex(s=>/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/.test(s));
-  if(dateAt>=0){for(let j=dateAt-1;j>=Math.max(0,dateAt-3);j--){const m=around[j].trim().match(/^(\d{5,9})(?:\s+\w{3,12})?$/);if(m){trace=m[1];break;}}}
+  if(dateAt>=0){for(let j=dateAt-1;j>=Math.max(0,dateAt-3);j--){const m=around[j].trim().match(/^(?:[^0-9]{0,3})?(\d{5,9})(?:\s+\w{3,12})?$/);if(m){trace=m[1];break;}}}
  }
  const masked=extractCard(context);
- const date=dateFromContext(context);
+ const rawDates=context.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/g)||[];
+ const date=dateFromContext(context)||rawDates.at(-1)||'';
  const times=context.match(/\b(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?\b/g)||[];
  const time=times.length?times[times.length-1]:'';
- if(!trace&&!masked)continue; // DATE+TIME alone is not proof of a card transaction
+ if(!trace&&!masked&&(!(date&&time)||type!=='EDC DETAIL'))continue; // Only retain incomplete identifiers for confirmed DETAIL blocks, never settlement
+ // Incomplete identifiers are quarantined as OCR review, not posted to sales.
  const kind=/BLUE\s*CREDIT/i.test(context)?'Blue Credit':/UOB\s*[- ]?VISA/i.test(context)?'UOB-Visa':/MASTER/i.test(context)?'MASTER':/VISA/i.test(context)?'VISA':'ไม่ทราบ';
- const issues=[]; if(!date||!dayFromDate(date))issues.push('วันที่อ่านไม่ได้หรือไม่ถูกต้อง'); else if(!dayFromDate(date).startsWith(selectedMonth+'-'))issues.push('วัน/เดือน OCR นอกเดือนที่เลือก'); if(!trace)issues.push('ไม่มี TRACE'); if(!masked)issues.push('ไม่พบเลขบัตรปิดบัง'); if(Math.round(amount*100)%100!==0)issues.push('ยอดมีเศษสตางค์ โปรดดูภาพจริง');
+ const issues=[]; if(!date||!dayFromDate(date))issues.push('วันที่อ่านไม่ได้หรือไม่ถูกต้อง'); else if(!dayFromDate(date).startsWith(selectedMonth+'-'))issues.push('วัน/เดือน OCR นอกเดือนที่เลือก'); if(!trace)issues.push('ไม่มี TRACE'); if(!masked)issues.push('ไม่พบเลขบัตรปิดบัง'); if(!time)issues.push('ไม่มีเวลา'); if(Math.round(amount*100)%100!==0)issues.push('ยอดมีเศษสตางค์ โปรดดูภาพจริง');
  const r={...blankRecord(),date,time,type:kind,trace,masked,group:groupOf(kind),amount,source:filename+(issues.length?' | ⚠ '+issues.join(', '):''),status:'ตรวจสอบ'};
  items.push(r);
  }
@@ -383,7 +394,7 @@ async function processImage(img,filename,manualBox=null){
  }finally{await worker.terminate()}
  return {newItems:all,types,boxes};
 }
-// V3.4 — report document types per image instead of presenting every zero EDC count as an OCR error.
+// V3.5 — report document types per image instead of presenting every zero EDC count as an OCR error.
 function scanDocumentKind(types){
  const kinds=new Set((types||[]).filter(Boolean));
  if(kinds.has('EDC DETAIL'))return 'EDC DETAIL';
@@ -444,12 +455,13 @@ async function scanImages(){
   const posDocs=kinds.filter(k=>k==='POS / QR SUMMARY').length;
   const settlementDocs=kinds.filter(k=>k==='EDC SETTLEMENT').length;
   const lines=reports.map(a=>`${a.name}: ${fileScanExplanation(a)}`);
+  lines.push(`ทะเบียนทั้งหมด ${records.length} รายการ • ข้อมูลของวันอื่นหรือวันที่ผิดจะไม่แสดงใน KPI ของวันที่เลือก`);
   let result=`ผลสแกน ${reports.length} รูป • EDC เพิ่ม ${added} รายการ • ซ้ำ ${dup}\n`+lines.join('\n');
   if(!edcDocs&&posDocs)result+='\n⚠ ชุดภาพนี้มี POS/QR แต่ไม่มี DETAIL REPORT ที่ตรวจพบ: เลือกเพิ่มภาพสลิป EDC (ม้วนยาวที่แสดงรายการ SALE/TRACE) แล้วสแกนใหม่';
   else if(!edcDocs&&settlementDocs)result+='\n⚠ พบเพียง Settlement ยอดสรุป ไม่ใช่รายการรายบิล • เพิ่มภาพ DETAIL REPORT';
   else if(edcDocs&&added===0)result+='\n⚠ พบภาพ EDC แต่ไม่เพิ่มรายการใหม่: อาจ OCR อ่านบิลไม่ได้ หรือรายการซ้ำทั้งหมด • ตรวจสรุปแยกแต่ละรูป แล้วใช้เลือกกรอบเฉพาะม้วนยาว';
   else if(!edcDocs&&added===0)result+='\n⚠ ยังไม่พบรายการ EDC • ตรวจตัวอย่างภาพและชนิดเอกสารก่อนสแกนใหม่';
-  if(added>0)result+='\nรายการ OCR ต้องตรวจวัน/เวลา/TRACE/ยอดเงิน และกด “ยืนยัน” ทีละรายการก่อนใช้ลงบัญชี';
+  if(added>0)result+='\nรายการ OCR เป็นข้อมูลรอตรวจ ไม่ใช่ยอดบัญชี • กด “เปิด/ปิดข้อความ OCR” เพื่อดูตัวเลขดิบ • ห้ามเดาแก้ยอดผิด';
   setStatus(result);
  }catch(e){setStatus('สแกนมีข้อผิดพลาด: '+String(e.message||e));}
  finally{busy=false;$('scanAll').disabled=false;$('bar').style.width='0%';renderSelectedFiles();render();}
@@ -593,7 +605,7 @@ const help=[
 ['หมายเหตุ','ห้ามถือว่าชีตว่างเป็นศูนย์หรือว่าวันนั้นไม่ขาย / โปรดกรอก POS ให้ครบก่อนยืนยัน'],
 ['แหล่งข้อมูล','ชื่อหมวด รหัสบัญชี บัญชีรับ และรอบรับเงินจาก template: ตรวจสอบบัตรเครดิตAMZ(1).xlsx'],
 ['ข้อจำกัด','การ OCR บัตรเครดิตไม่ระบุเงินสด/QR/คูปอง/Delivery ทั้งหมด ต้องใช้ POS เพิ่มเติม'],
-['ควบคุมข้อมูล V3.4','วันที่ไม่ถูกต้องหรือ OCR ให้ยอดไม่ตรงกันไม่ลงยอดรายวันจนกว่าจะตรวจแก้ / รายการดิบยังอยู่ในทะเบียน']];
+['ควบคุมข้อมูล V3.5','วันที่ไม่ถูกต้องหรือ OCR ให้ยอดไม่ตรงกันไม่ลงยอดรายวันจนกว่าจะตรวจแก้ / รายการดิบยังอยู่ในทะเบียน']];
 const hs=XLSX.utils.aoa_to_sheet(help);hs['!cols']=[{wch:32},{wch:107}];XLSX.utils.book_append_sheet(wb,hs,'คู่มือ');
 wb.Workbook={...(wb.Workbook||{}),CalcPr:{fullCalcOnLoad:true}};
 return deliverExcel(wb,`AMZ_ตรวจสอบยอดรายวัน_${ym}_1-31.xlsx`,preferShare);

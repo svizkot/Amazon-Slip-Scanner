@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171B20">
-<title>AMZ Credit Audit | Slip Scanner V3.5</title>
+<title>AMZ Credit Audit | Slip Scanner V3.6</title>
 <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -28,7 +28,7 @@
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.5</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">บันทึก Excel</button><button class="btn good" id="shareXlsx">แชร์ Excel (มือถือ)</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
+<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.6</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">บันทึก Excel</button><button class="btn good" id="shareXlsx">แชร์ Excel (มือถือ)</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
 <div id="lineBrowserHelp" class="lineHelp" hidden>
   <strong>⚠️ เปิดผ่าน LINE: อาจดาวน์โหลดไฟล์ Excel ไม่ได้</strong>
   <span>กดเมนู ⋮ ของ LINE แล้วเลือก <b>เปิดในเบราว์เซอร์อื่น</b> (Chrome หรือ Samsung Internet) หรือใช้ปุ่ม <b>แชร์ Excel (มือถือ)</b> ถ้าเครื่องรองรับการส่งไฟล์ <b>ข้อมูลที่สแกนใน LINE ไม่ย้ายไป Chrome อัตโนมัติ</b> ถ้ามีข้อมูลแล้ว ให้คัดลอกข้อมูลสำรองด้านล่างก่อนเปลี่ยนเบราว์เซอร์</span>
@@ -42,13 +42,14 @@
 <section class="panel noPrint"><h2>1. อัปโหลดภาพ / เปิดกล้อง</h2><p class="hint">รองรับหลายภาพ • <strong>ภาพตัวอย่างของคุณ:</strong> S__21823495_0.jpg = รายงาน POS/QR, S__21823496_0.jpg = ม้วนสลิป EDC DETAIL REPORT • เมื่อพบม้วน DETAIL REPORT ยาว ระบบจะอ่านม้วนนั้นเป็นหลัก และไม่บวกใบ Settlement กับใบสำเนาด้านข้างซ้ำ • หากข้อความเล็กเกินไปควรถ่ายใกล้ขึ้น ให้ความกว้างม้วนอย่างน้อย 600 พิกเซล</p>
 <label class="drop" for="slipFiles"><strong>📷 เลือกรูปจากเครื่อง (ได้หลายภาพ)</strong><small>JPG, PNG, WEBP • เลือกภาพถ่ายรวมกระดาษได้</small></label><input class="filehidden" type="file" accept="image/*" multiple id="slipFiles">
 <div class="toolbar"><button class="btn good" id="cameraBtn">📸 เปิดกล้อง</button><button class="btn" id="folderBtn">📁 เลือกโฟลเดอร์รูป (PC)</button><input class="filehidden" id="folderFiles" type="file" webkitdirectory directory multiple accept="image/*"><input class="filehidden" type="file" accept="image/*" capture="environment" id="cameraFiles"><button class="btn" id="manualCrop">✂ เลือกกรอบในภาพ</button><button class="btn" id="nextCropImage">รูปถัดไปสำหรับเลือกกรอบ</button><button class="btn" id="scanAll">🔎 สแกนเอกสารทั้งหมด</button></div>
-<div class="notice" style="margin:12px 0 8px;background:#222d35;border-color:#465c68" id="fileHint"><strong>ตรวจไฟล์ก่อนสแกน:</strong> ภาพรายงาน POS / QR และภาพ DETAIL REPORT เป็นคนละชุดข้อมูล • เลือกหลายรูปพร้อมกันได้ หลังสแกนระบบจะแจ้งประเภทเอกสารของแต่ละรูป • หากมีแต่ POS / QR จะไม่มีรายการ EDC เพิ่ม (ไม่ใช่ความผิดพลาดของยอดขาย)</div>
+<div class="notice" style="margin:12px 0 8px;background:#222d35;border-color:#465c68" id="fileHint"><strong>ตรวจไฟล์ก่อนสแกน:</strong> ภาพรายงาน POS / QR และภาพ DETAIL REPORT เป็นคนละชุดข้อมูล • เลือกหลายรูปพร้อมกันได้ หลังสแกนระบบจะแจ้งประเภทเอกสารของแต่ละรูป • หากมีแต่ POS / QR จะไม่มีรายการ EDC เพิ่ม • ม้วนยาวที่ตัวเลขเล็กอาจอ่าน 0 เป็น 8 แม้แยกได้หลายบิล ต้องตรวจยอดทุกรายการกับภาพขยาย</div>
+<div class="notice" style="margin:10px 0"><strong>ถ่ายม้วน DETAIL REPORT แยกต่างหากเพื่อความแม่นยำ:</strong> ภาพตัวอย่างที่ถ่ายม้วนยาวพร้อมกระดาษหลายใบทำให้ตัวหนังสือบนม้วนหลักกว้างเพียงราว 240 พิกเซล OCR จึงมักสับสนเลข 0 กับ 8 และเดือน 10 กับ 18 • ควรถ่ายแนวตรงให้เฉพาะม้วนเต็มกรอบหรือถ่าย 3–4 ภาพต่อเนื่องที่มีช่วงซ้อนกัน โดยไม่ใช้แฟลชสะท้อน • บรรทัดที่ OCR ตรวจพบทั้งหมดเป็นข้อมูล <strong>รอตรวจ</strong> ไม่ใช่ยอดยืนยัน</div>
 <div id="fileList" aria-live="polite"></div>
-<div id="cropBox" class="cropbox"><div class="note">เลือกใบสลิปทีละใบด้วยนิ้ว แล้วกด “สแกนเฉพาะกรอบ”; ทำซ้ำได้ ระบบตรวจรายการซ้ำด้วย TRACE และวันที่</div><div class="tiny" id="cropImageName"></div><canvas id="cropCanvas"></canvas><div class="toolbar"><button class="btn primary" id="scanCrop">สแกนเฉพาะกรอบ</button><button class="btn" id="cancelCrop">ปิดกรอบเลือก</button></div></div>
+<div id="cropBox" class="cropbox"><div class="note">เลือกกรอบครอบเฉพาะม้วน DETAIL REPORT ให้เต็มความกว้าง (รวมตัวเลขด้านขวา) แล้วกด “สแกนเฉพาะกรอบ”; ทำซ้ำได้ ระบบตรวจรายการซ้ำด้วย TRACE และวันที่</div><div class="tiny" id="cropImageName"></div><canvas id="cropCanvas"></canvas><div class="toolbar"><button class="btn primary" id="scanCrop">สแกนเฉพาะกรอบ</button><button class="btn" id="cancelCrop">ปิดกรอบเลือก</button></div></div>
 <label class="tiny" style="display:flex;align-items:center;gap:7px;margin:8px 0"><input type="checkbox" id="verifyOcr" checked> สแกนซ้ำเพิ่มคอนทราสต์สำหรับสลิปสั้น เพื่อตรวจหายอดที่ OCR อ่านไม่ตรงกัน (ใช้เวลามากขึ้น)</label>
 <div id="pasteArea" hidden class="notice" style="margin:8px 0"><label for="backupText">วางข้อความ JSON ที่คัดลอกมาจาก LINE หรือ Chrome</label><textarea id="backupText" rows="5" style="display:block;width:100%;margin:8px 0;background:#151c22;color:#fff;border:1px solid #8797a6;border-radius:7px;padding:8px" placeholder="วาง JSON ที่นี่"></textarea><button class="btn good" id="applyBackup">นำเข้าข้อมูล</button></div>
 <div class="progress"><span id="bar"></span></div><div id="status" class="status" role="status">ยังไม่มีไฟล์สแกน • สามารถกดโหลดข้อมูลตัวอย่างที่อ่านยืนยันจากภาพได้</div>
-<div class="toolbar"><button class="btn" id="loadExample">นำเข้ารายการจริงจากภาพ 28/10/2569 (10 บิล)</button><button class="btn" id="importJsonBtn">นำเข้า JSON</button><input type="file" accept=".json,application/json" id="jsonFile" class="filehidden"><button class="btn" id="copyBackup">คัดลอกข้อมูลสำรอง</button><button class="btn" id="pasteBackup">วางข้อมูลสำรอง</button><button class="btn danger" id="clearPending">ล้างเฉพาะ OCR ที่ยังไม่ยืนยัน</button><button class="btn danger" id="clearData">ล้างข้อมูลทั้งหมด</button></div>
+<div class="toolbar"><button class="btn" id="loadExample">ใช้ข้อมูลอ้างอิงที่ตรวจด้วยคน 28/10/2569 (10 บิล)</button><button class="btn" id="importJsonBtn">นำเข้า JSON</button><input type="file" accept=".json,application/json" id="jsonFile" class="filehidden"><button class="btn" id="copyBackup">คัดลอกข้อมูลสำรอง</button><button class="btn" id="pasteBackup">วางข้อมูลสำรอง</button><button class="btn danger" id="clearPending">ล้างเฉพาะ OCR ที่ยังไม่ยืนยัน</button><button class="btn danger" id="clearData">ล้างข้อมูลทั้งหมด</button></div>
 </section>
 <section class="panel"><h2>2. กระทบยอดอ้างอิง</h2><div class="hint">ยอดอ้างอิงจากใบ Settlement หรือ POS เป็นคนละระดับกับยอดรายธุรกรรมและไม่ควรนำมาบวกซ้ำ</div>
 <div class="summarygrid" style="margin-top:13px"><div>ยอด EDC สแกน <b id="edcScan">0.00</b></div><div>ยอด EDC Settlement <b id="edcRefLabel">ยังไม่กรอก</b></div><div>ยอด QR API อ้างอิง <b id="qrRefLabel">ยังไม่กรอก</b></div><div>ยอด POS Grand Total <b id="posRefLabel">ยังไม่กรอก</b></div></div>
@@ -75,7 +76,7 @@
 </section>
 <section class="panel noPrint" style="margin-top:16px;display:none" id="ocrPanel"><h2>5. ข้อความ OCR และเหตุผลการคัดกรอง</h2><pre id="ocrDump" style="white-space:pre-wrap;word-wrap:break-word;color:#b8c9d6;font-size:.78rem;max-height:360px;overflow:auto"></pre></section>
 <section class="panel noPrint" style="margin-top:16px"><h2>วิธีใช้งานและข้อจำกัดสำคัญ</h2><div class="helpdetails"><p><strong>การสแกน:</strong> อัปโหลดรูป → กดสแกนเอกสารทั้งหมด → ตรวจแต่ละแถว → ปรับข้อมูลที่ OCR อ่านผิด → ใส่ยอด Settlement → ส่งออก Excel หรือ PDF หากกระดาษติดกันจนตัดผิด ให้ใช้ “เลือกกรอบในภาพ” สแกนแยก</p><p><strong>ไม่เดาข้อมูล:</strong> “KBank” บนเครื่องรับบัตรคือธนาคารผู้รับชำระ (Acquirer) ไม่ได้แปลว่าบัตรลูกค้าทุกใบออกโดย KBank และหมายเลข MID/TID ไม่ใช่เลขบัญชีธนาคารรับเงินจริง</p><p><strong>เลขบัตร:</strong> ระบบแสดงเฉพาะรูปแบบปิดบัง หาก OCR ได้เลขบัตรเต็มจะตัดให้เหลือ 4 หลักท้าย ห้ามเก็บ CVV หรือข้อมูลบัตรเต็ม</p><p><strong>ป้องกันยอดซ้ำ:</strong> ระบบรับเฉพาะบล็อก SALE/SALES ที่มีจำนวนเงินและหลักฐานธุรกรรม, พยายามจับ TRACE ซ้ำ และกันรายงานสรุป TOTAL/SETTLEMENT ออก แต่ภาพมุมเอียง/ไม่ชัดอาจต้องแก้เอง</p><p><strong>ข้อมูล:</strong> เก็บรายการไว้ใน localStorage ของเบราว์เซอร์เครื่องนั้นเท่านั้น การล้างข้อมูลเว็บอาจทำให้ข้อมูลหาย ควรสำรอง JSON หรือ Excel เป็นระยะ</p><p><strong>การเปิดใช้งาน:</strong> ตั้งชื่อไฟล์นี้เป็น index.html แล้วนำไปวางใน GitHub Pages repository เดิม เปิดผ่าน HTTPS เพื่อให้กล้องมือถือใช้งานได้ OCR ต้องเชื่อมอินเทอร์เน็ตตอนโหลดโมเดล</p></div></section>
-<div class="foot">AMZ Credit Audit V3.5 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
+<div class="foot">AMZ Credit Audit V3.6 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ต้องตรวจคู่กับต้นฉบับหรือ Bank Statement • 0 และ 8 อ่านสลับกันได้</div>
 </main>
 <script>
 'use strict';
@@ -244,65 +245,79 @@ const body=$('tbody');body.replaceChildren();const fields=[['date','วันท
 });td.append(el);tr.append(td);}let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);save();renderDailyInputs();render()}});td.append(b);tr.append(td);body.append(tr);});$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');updateDailySummary();}
 function dateFromContext(s){const m=String(s).match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/);if(!m)return '';let y=Number(m[3]);if(y>=2400)y-=543;else if(y<100)y=y>=80?1900+y:2000+y;const result=`${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${y}`;return dayFromDate(result)?result:'';}
 function extractCard(s){const m=String(s).match(/\b\d{4}\s+\d{2}[Xx*]{2}\s+[Xx*]{3,6}\s+\d{4}\b/);if(m)return safeMask(m[0]);const m2=String(s).match(/\b(?:\d{4}[ \-]*){3}\d{4}\b/);return m2?safeMask(m2[0]):'';}
-function classify(text){const s=String(text||'').toUpperCase();
+// V3.6: interpret sale *rows* rather than extracting any number near a SALE keyword.
+// Fuzzy prefixes are OCR artifacts; SALES THB 295.00 in a settlement is NOT a sale row.
+function parseSaleLine(raw){
+ const s=String(raw||'').replace(/[\u00a0\t]/g,' ').trim();
+ const m=s.match(/^[^0-9A-Za-z]{0,5}[A-Za-z2]{0,2}\s*(?:SALE|ALE)\b\s*[:=.-]?\s*(?:TH[BIE]?\s*)?([0-9][0-9OolI,\.]{1,13})(?:\s*TH[BIE]?)?\b/i);
+ if(!m)return null;
+ let q=m[1].replace(/[Oo]/g,'0').replace(/[lI]/g,'1').replace(/,/g,'.');
+ if(!/^\d{1,6}\.\d{2}$/.test(q))return null;
+ const amount=Number(q);return amount>0&&amount<=100000?{amount,raw:s,rawAmount:m[1]}:null;
+}
+function saleLineCount(s){return String(s||'').split(/\r?\n/).filter(l=>!!parseSaleLine(l)).length;}
+function classify(text){
+ const s=String(text||'').toUpperCase();
  if(/QR\s*API\s*SETTLEMENT|TOTAL\s*\(POS\)|TOTAL\s*\(KBANK\)|PAYMENT\s+DETAIL|QR\s*PAYMENT\s*\(API\)|TOTAL\s+BILLS/i.test(s))return 'POS / QR SUMMARY';
- const traceHits=(s.match(/\bTRACE\b/g)||[]).length;
- // OCR often inserts a stray character before SALE (2SALE, SSALE). Match the same
- // forms as the transaction parser, but never confuse SETTLEMENT sales summaries.
- const saleHits=(s.match(/(?:^|[^A-Z])(?:S?SALE(?:S)?)\s*(?:THB\s*)?(?:\d{1,3}(?:,\d{3})*\.\d{2})/gim)||[]).length;
- const isDetail=/DETAIL\s+REPORT|CARD\s+NUMBER|CARD\s+NO/.test(s)||traceHits>=2||(/TRACE\s*NO/.test(s)&&saleHits>=2);
- if(isDetail&&saleHits>=1)return 'EDC DETAIL';
- if(/SETTLEMENT|GRAND\s+TOTAL|TOTAL\s+SALES/.test(s))return 'EDC SETTLEMENT';
- if(saleHits>=1&&/(?:THB|\d+\.\d{2})/.test(s)&&(/\bTRACE\b|CARD\s+(?:NO|NUMBER)/.test(s)))return 'EDC RECEIPT';
- return 'OTHER';}
-function cleanOcrText(raw){return String(raw||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').replace(/[‐‑–—]/g,'-').replace(/\bS[ A]{0,4}A[ L]{0,4}L[ E]{0,4}E\b/gi,'SALE');}
-// Parse transaction blocks; summary SALES and group totals are not customer transactions.
+ const num=saleLineCount(s);
+ // Detail reports can contain an EDC settlement section at their bottom;
+ // read each SALE row above the first card-network subtotal without counting that subtotal.
+ if(num>=2 && (/DETAIL\s*REPORT|CARD\s+NUMBER|TRANS\s+TYPE|TRACE\s+NO|CARD\s+NAME/i.test(s)||num>=4))return 'EDC DETAIL';
+ if(/SETTLEMENT|GRAND\s+TOTAL|TOTAL\s+SALES/i.test(s)&&num===0)return 'EDC SETTLEMENT';
+ if(num>=1&&(/\bTRACE\b|CARD\s+(?:NO|NUMBER)|MASTER|VISA|CREDIT/i.test(s)))return 'EDC RECEIPT';
+ return 'OTHER';
+}
+function cleanOcrText(raw){return String(raw||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').replace(/[‐‑–—]/g,'-');}
 function parseEDC(text,filename){
-const cleaned=cleanOcrText(text),type=classify(cleaned),items=[];
-if(['POS / QR SUMMARY','EDC SETTLEMENT','OTHER'].includes(type))return {type,items};
-const lines=cleaned.split('\n');let prior='',block=[],lastSale=-1;
-const isSummaryLine=s=>/\b(?:GRAND\s+TOTAL|SUB\s*TOTAL|REFUNDS|VOID\s+REFUND|SETTLEMENT\s+SUCCESS|SETTLEMENT\s+SUMMARY|CARD\s+NAME|TOTAL\s+SALES)\b/i.test(s);
-const saleRE=/(?:^|[^A-Za-z])(?:S?SALE(?:S)?)\s*(?:THB\s*)?(?:฿\s*)?((?:\d{1,3},)?\d{1,6}\.\d{2})\s*(?:THB)?\b/gim;
-// For detail reports, stop at card-type settlement totals and grand totals.
-for(let li=0;li<lines.length;li++){
-const line=lines[li].trim();if(!line)continue;
-if(isSummaryLine(line)||(/^(?:VISA[- ]CARD|MASTERCARD|KBANK[- ]CARD|GRAND\s+TOTAL|SALES\s+SUMMARY)$/i.test(line)&&type==='EDC DETAIL')){
- if(type==='EDC DETAIL'&&/^(?:VISA[- ]CARD|MASTERCARD|KBANK[- ]CARD|GRAND\s+TOTAL)/i.test(line))break;
- block=[];continue;
+ const cleaned=cleanOcrText(text),type=classify(cleaned),items=[];
+ const lines=cleaned.split('\n');
+ if(['POS / QR SUMMARY','EDC SETTLEMENT','OTHER'].includes(type))return {type,items,rawSalesCount:saleLineCount(cleaned)};
+ let block=[],rowNumber=0,previous=false;
+ const stopSummary=s=>/^\s*[^A-Z0-9]{0,6}(?:VISA\s*[-—]?\s*CARD|MASTER\s*CARD|KBANK\s*[-—]?\s*CARD|GRAND\s*TOTAL)\b/i.test(s);
+ const skipSummary=s=>/\b(?:REFUNDS|VOID\s+REFUND|SETTLEMENT\s+SUCCESS|TOTAL\s+SALES|SUB\s*TOTAL)\b/i.test(s);
+ for(const raw of lines){
+  const line=raw.trim();if(!line)continue;
+  if(type==='EDC DETAIL'&&stopSummary(line))break;
+  if(skipSummary(line)){block=[];continue;}
+  const sale=parseSaleLine(line);
+  if(!sale){block.push(line);if(block.length>9)block.shift();continue;}
+  rowNumber++;
+  const context=block.join('\n');
+  const rawDates=context.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/g)||[];
+  const validDates=rawDates.map(dateFromContext).filter(Boolean);
+  const date=validDates.at(-1)||rawDates.at(-1)||'';
+  const normalizedDate=dateFromContext(date);
+  const timeMatches=context.match(/\b(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?\b/g)||[];
+  const time=timeMatches.at(-1)||'';
+  let trace='';
+  // Prefer explicit TRACE; otherwise require a standalone 6-digit token near the date.
+  const tx=context.match(/\bTRACE\s*(?:NO\.?|#|:)?\s*[:#]?\s*(\d{5,9})\b/i);
+  if(tx)trace=tx[1];
+  else {
+   const cLines=context.split('\n');
+   for(let j=cLines.length-1;j>=0;j--){
+    const t=cLines[j].match(/(?:^|\s)(\d{6})(?=\s|$)/);
+    if(t&&!/\//.test(cLines[j])){trace=t[1];break;}
+   }
+  }
+  const masked=extractCard(context);
+  const kind=/BLUE\s*CREDIT/i.test(context)?'Blue Credit':/UOB\s*[- ]?VISA/i.test(context)?'UOB-Visa':/MASTER/i.test(context)?'MASTER':/VISA|TNB[- ]?VISA/i.test(context)?'VISA':'ไม่ทราบ';
+  const issues=[];
+  if(!normalizedDate)issues.push('วันที่ OCR ผิด/อ่านไม่ชัด');
+  else if(!dayFromDate(normalizedDate).startsWith(selectedMonth+'-'))issues.push('OCR วัน/เดือนนอกเดือนที่เลือก');
+  if(!trace)issues.push('TRACE ไม่ชัด');
+  if(!masked)issues.push('เลขบัตรปิดบังไม่ชัด');
+  if(!time)issues.push('เวลาไม่ชัด');
+  if(Math.round(sale.amount*100)%100!==0)issues.push('ยอดเศษสตางค์ โปรดตรวจ 0/8');
+  const r={...blankRecord(),date:normalizedDate||date,time,type:kind,trace,masked,group:groupOf(kind),amount:sale.amount,
+   source:filename+` / OCR บิลที่ ${rowNumber} (ต้นฉบับ: ${sale.raw})`+(issues.length?' | ⚠ '+issues.join(', '):''),status:'ตรวจสอบ'};
+  // Every candidate remains review-only. Never force amounts to match settlement.
+  items.push(r);block=[];
+ }
+ // Do not deduplicate separate slips solely on their amount when OCR missed TRACE.
+ // Cross-image deduplication is performed in addRecords after human review.
+ return {type,items,rawSalesCount:saleLineCount(cleaned)};
 }
-const matches=[...line.matchAll(saleRE)];
-if(matches.length){
-for(const mt of matches){
- const prefix=line.slice(0,mt.index),context=[...block.slice(-12),prefix].join('\n');
- const amount=Number(mt[1].replace(/,/g,''));if(!(amount>0&&amount<100000))continue;
- // Never accept SALE rows without at least one transaction identifier; bank totals lack these.
- // Detail Report columns often show TRACE NO only once in the header.
- // Transaction rows contain a bare six-digit trace immediately before DATE.
- let trace=(context.match(/TRACE\s*(?:NO\.?|#|:)?\s*[:#]?\s*(\d{4,9})/i)||[])[1]||'';
- if(!trace){const around=context.split('\n');const dateAt=around.findLastIndex(s=>/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/.test(s));
-  if(dateAt>=0){for(let j=dateAt-1;j>=Math.max(0,dateAt-3);j--){const m=around[j].trim().match(/^(?:[^0-9]{0,3})?(\d{5,9})(?:\s+\w{3,12})?$/);if(m){trace=m[1];break;}}}
- }
- const masked=extractCard(context);
- const rawDates=context.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/g)||[];
- const date=dateFromContext(context)||rawDates.at(-1)||'';
- const times=context.match(/\b(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?\b/g)||[];
- const time=times.length?times[times.length-1]:'';
- if(!trace&&!masked&&(!(date&&time)||type!=='EDC DETAIL'))continue; // Only retain incomplete identifiers for confirmed DETAIL blocks, never settlement
- // Incomplete identifiers are quarantined as OCR review, not posted to sales.
- const kind=/BLUE\s*CREDIT/i.test(context)?'Blue Credit':/UOB\s*[- ]?VISA/i.test(context)?'UOB-Visa':/MASTER/i.test(context)?'MASTER':/VISA/i.test(context)?'VISA':'ไม่ทราบ';
- const issues=[]; if(!date||!dayFromDate(date))issues.push('วันที่อ่านไม่ได้หรือไม่ถูกต้อง'); else if(!dayFromDate(date).startsWith(selectedMonth+'-'))issues.push('วัน/เดือน OCR นอกเดือนที่เลือก'); if(!trace)issues.push('ไม่มี TRACE'); if(!masked)issues.push('ไม่พบเลขบัตรปิดบัง'); if(!time)issues.push('ไม่มีเวลา'); if(Math.round(amount*100)%100!==0)issues.push('ยอดมีเศษสตางค์ โปรดดูภาพจริง');
- const r={...blankRecord(),date,time,type:kind,trace,masked,group:groupOf(kind),amount,source:filename+(issues.length?' | ⚠ '+issues.join(', '):''),status:'ตรวจสอบ'};
- items.push(r);
- }
- block=[];lastSale=li;
- }else{
- block.push(line);if(block.length>16)block.shift();
- }
-}
-const dedup=[];const seen=new Set();
- for(const r of items){const key=r.trace&&r.date?`TRACE:${r.date}/${r.trace}`:(r.masked&&r.time?`CARD:${r.date}/${r.masked}/${r.time}`:`RAW:${r.date}/${r.time}/${r.amount}`);
-  if(seen.has(key))continue;seen.add(key);dedup.push(r);}
- return {type,items:dedup};}
 async function toImage(file){return new Promise((resolve,reject)=>{const u=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(u);resolve(img)};img.onerror=e=>{URL.revokeObjectURL(u);reject(e)};img.src=u})}
 function rectToCanvas(img,x,y,w,h,maxWidth=1200){const scale=Math.min(maxWidth/w,5);const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*scale));c.height=Math.max(1,Math.round(h*scale));const ctx=c.getContext('2d',{willReadFrequently:true});ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,x,y,w,h,0,0,c.width,c.height);return c;}
 // Find separate white-paper components by low-resolution flood fill; fallback full image or manual crop.
@@ -364,7 +379,24 @@ async function processImage(img,filename,manualBox=null){
  try{
   await worker.setParameters({tessedit_pageseg_mode:6,preserve_interword_spaces:'1',user_defined_dpi:'300'});
   for(let bi=0;bi<boxes.length;bi++){
-   const box=boxes[bi],pieces=sliceBox(box),parts=[];
+   const box=boxes[bi],isLongRoll=(box.h/Math.max(1,box.w)>5.8&&box.h/img.naturalHeight>.55),pieces=sliceBox(box),parts=[];
+   // Long-roll-first pass keeps each card/date/SALE together in the same OCR layout.
+   let wholeResult=null,wholeText='';
+   if(isLongRoll){
+     try{
+       setStatus(`กำลังอ่านม้วนยาวเต็มใบ ${filename} • อาจใช้เวลานานกว่าสลิปสั้น`);
+       const targetWidth=Math.min(760,Math.max(600,Math.round(box.w*3.4)));
+       const can=rectToCanvas(img,box.x,box.y,box.w,box.h,targetWidth);
+       const result=await worker.recognize(can);wholeText=result.data.text||'';
+       wholeResult=parseEDC(wholeText,filename+` / ม้วนยาว ${bi+1}`);
+       ocrLog.push(`${filename} / ม้วนยาวฉบับเต็ม (${wholeResult.type}, SALE ${wholeResult.rawSalesCount}):\n${wholeText.slice(0,16000)}`);
+     }catch(err){ocrLog.push(`อ่านม้วนเต็มไม่สำเร็จ: ${err.message||err}`);}
+   }
+   // If full-roll text already produced several candidates, do not add duplicated
+   // segmentation output. Otherwise retry with overlapping bands.
+   if(wholeResult&&wholeResult.items.length>=3){
+     all.push(...wholeResult.items);types.push(wholeResult.type);continue;
+   }
    for(let si=0;si<pieces.length;si++){
     $('bar').style.width='0%';setStatus(`กำลังอ่าน ${filename} • บริเวณ ${bi+1}/${boxes.length} • ส่วน ${si+1}/${pieces.length}`);
     const z=pieces[si],canvas=rectToCanvas(img,z.x,z.y,z.w,z.h,Math.min(850,Math.max(650,z.w*3.0)));
@@ -372,6 +404,7 @@ async function processImage(img,filename,manualBox=null){
    }
    const full=parts.join('\n'),first=parseEDC(full,filename+` / กระดาษ ${bi+1}`);
    let best=first;
+   if(wholeResult&&wholeResult.items.length>best.items.length)best=wholeResult;
    // The browser must never claim to reconstruct missing detail from a fuzzy image.
    // Retry individual/slender pieces; avoid a giant >10 MP canvas on mobile.
    if((!first.items.length||($('verifyOcr').checked&&box.aspect<3.5))&&full.length>8){
@@ -381,7 +414,7 @@ async function processImage(img,filename,manualBox=null){
      const again=await worker.recognize(boosted);retryParts.push(again.data.text||'');
     }
     const againText=retryParts.join('\n'),retry=parseEDC(againText,filename+` / Contrast`);
-    if(retry.items.length>first.items.length)best=retry;
+    if(retry.items.length>best.items.length)best=retry;
     for(const r of best.items){
      const other=(best===first?retry:first).items.find(a=>(a.trace&&r.trace&&a.trace===r.trace)||(a.masked&&r.masked&&a.masked===r.masked&&a.time&&r.time&&a.time===r.time));
      if(other&&Math.abs(other.amount-r.amount)>0.009)r.source+=` | ⚠ OCR ต่างกัน ${r.amount.toFixed(2)} / ${other.amount.toFixed(2)} บาท`;
@@ -392,7 +425,7 @@ async function processImage(img,filename,manualBox=null){
    ocrLog.push(`${filename} / โซน ${bi+1} (${first.type})\n${full.slice(0,9000)}`);
   }
  }finally{await worker.terminate()}
- return {newItems:all,types,boxes};
+ return {newItems:all,types,boxes,lowResolution:boxes.some(b=>(b.h/Math.max(1,b.w)>5.8)&&b.w<430)};
 }
 // V3.5 — report document types per image instead of presenting every zero EDC count as an OCR error.
 function scanDocumentKind(types){
@@ -407,7 +440,7 @@ function fileScanExplanation(info){
  const kind=scanDocumentKind(info.types),count=Number(info.count)||0,added=Number(info.added)||0,dup=Number(info.dup)||0;
  if(kind==='POS / QR SUMMARY')return `🧾 POS / QR — รายงานยอดรวม ไม่ใช่สลิปบัตร EDC (${count} ธุรกรรม EDC) • ใช้สำหรับกระทบยอด ไม่เพิ่มบิล`;
  if(kind==='EDC SETTLEMENT')return `🏦 EDC SETTLEMENT — ยอดปิดรอบ ไม่ใช่บิลขาย (${count} บิล) • กรอกยอดในช่อง Settlement หลังตรวจภาพ`;
- if(kind==='EDC DETAIL'||kind==='EDC RECEIPT')return count?`💳 ${kind} — OCR พบ ${count} บิล • เพิ่ม ${added} • ซ้ำ ${dup} • ยังต้องตรวจวันที่และจำนวนเงิน`:`⚠ พบเอกสาร ${kind} แต่ OCR ไม่สามารถแยกบิลได้ • เลือกกรอบเฉพาะ DETAIL REPORT หรือถ่ายใกล้ขึ้น`;
+ if(kind==='EDC DETAIL'||kind==='EDC RECEIPT')return count?`💳 ${kind} — OCR แยกได้ ${count} บิล (ทั้งหมดต้องตรวจหลักฐาน) • เพิ่ม ${added} • ซ้ำ ${dup} • ยังต้องตรวจวันที่และจำนวนเงิน${info.lowResolution?' • ⚠ ม้วนยาวแคบกว่า 430px โปรดถ่ายใหม่ใกล้ขึ้น':''}`:`⚠ พบเอกสาร ${kind} แต่ OCR ไม่สามารถแยกบิลได้ • เลือกกรอบเฉพาะ DETAIL REPORT หรือถ่ายใกล้ขึ้น`;
  return `❔ จำแนกชนิดเอกสารไม่ได้ • OCR ไม่พบข้อมูล EDC ที่เชื่อถือได้ • เลือกกรอบกระดาษ/ถ่ายใหม่ และดูข้อความ OCR`;
 }
 function imageThumb(img){try{const can=document.createElement('canvas');can.width=90;can.height=120;const context=can.getContext('2d');context.fillStyle='#13191f';context.fillRect(0,0,90,120);let r=Math.min(90/img.naturalWidth,120/img.naturalHeight);let w=img.naturalWidth*r,h=img.naturalHeight*r;context.drawImage(img,(90-w)/2,(120-h)/2,w,h);return can.toDataURL('image/jpeg',.7)}catch(e){return ''}}
@@ -446,7 +479,7 @@ async function scanImages(){
   for(let i=0;i<images.length;i++){
    const f=images[i],z=await processImage(f.img,f.file.name),n=addRecords(z.newItems);
    added+=n.added;dup+=n.dup;
-   f.scanResult={types:z.types,count:z.newItems.length,added:n.added,dup:n.dup};
+   f.scanResult={types:z.types,count:z.newItems.length,added:n.added,dup:n.dup,lowResolution:z.lowResolution};
    reports.push({name:f.file.name,...f.scanResult});
    renderSelectedFiles();
   }
@@ -605,7 +638,7 @@ const help=[
 ['หมายเหตุ','ห้ามถือว่าชีตว่างเป็นศูนย์หรือว่าวันนั้นไม่ขาย / โปรดกรอก POS ให้ครบก่อนยืนยัน'],
 ['แหล่งข้อมูล','ชื่อหมวด รหัสบัญชี บัญชีรับ และรอบรับเงินจาก template: ตรวจสอบบัตรเครดิตAMZ(1).xlsx'],
 ['ข้อจำกัด','การ OCR บัตรเครดิตไม่ระบุเงินสด/QR/คูปอง/Delivery ทั้งหมด ต้องใช้ POS เพิ่มเติม'],
-['ควบคุมข้อมูล V3.5','วันที่ไม่ถูกต้องหรือ OCR ให้ยอดไม่ตรงกันไม่ลงยอดรายวันจนกว่าจะตรวจแก้ / รายการดิบยังอยู่ในทะเบียน']];
+['ควบคุมข้อมูล V3.6','วันที่ไม่ถูกต้องหรือ OCR ให้ยอดไม่ตรงกันไม่ลงยอดรายวันจนกว่าจะตรวจแก้ / รายการดิบยังอยู่ในทะเบียน']];
 const hs=XLSX.utils.aoa_to_sheet(help);hs['!cols']=[{wch:32},{wch:107}];XLSX.utils.book_append_sheet(wb,hs,'คู่มือ');
 wb.Workbook={...(wb.Workbook||{}),CalcPr:{fullCalcOnLoad:true}};
 return deliverExcel(wb,`AMZ_ตรวจสอบยอดรายวัน_${ym}_1-31.xlsx`,preferShare);

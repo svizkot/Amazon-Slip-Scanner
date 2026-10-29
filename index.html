@@ -643,7 +643,6 @@ const hs=XLSX.utils.aoa_to_sheet(help);hs['!cols']=[{wch:32},{wch:107}];XLSX.uti
 wb.Workbook={...(wb.Workbook||{}),CalcPr:{fullCalcOnLoad:true}};
 return deliverExcel(wb,`AMZ_ตรวจสอบยอดรายวัน_${ym}_1-31.xlsx`,preferShare);
 }
-
 if(isLineBrowser()){$('lineBrowserHelp').hidden=false;}
 $('copyPageLink').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);setStatus('คัดลอกลิงก์แล้ว: เปิด Chrome หรือ Samsung Internet แล้ววางลิงก์เพื่อ Export');}catch(e){prompt('คัดลอกลิงก์นี้ไปเปิดใน Chrome / Samsung Internet',location.href);}});
 $('exportXlsx').addEventListener('click',()=>exportExcel(false));$('shareXlsx').addEventListener('click',()=>exportExcel(true));$('exportPdf').addEventListener('click',()=>{if(isLineBrowser()){externalBrowserHelp('บันทึก PDF ผ่านเบราว์เซอร์ LINE อาจใช้งานไม่ได้');return;}window.print();});restore();

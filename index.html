@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171B20">
-<title>AMZ Credit Audit | Slip Scanner V2</title>
+<title>AMZ Credit Audit | Slip Scanner V3</title>
 <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -12,10 +12,22 @@
 @media(max-width:1000px){.gridtop{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.wrap{padding:12px}header .wrap{display:block}.brand{margin-bottom:8px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:1.27rem}.panel{padding:14px}.tbl{min-width:0;display:block}.tbl thead{display:none}.tbl tbody{display:block}.tbl tr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;padding:12px;background:#212830;border:1px solid var(--line);border-radius:11px}.tbl td{display:block;border:0;padding:0;min-width:0}.tbl td:before{content:attr(data-label);display:block;color:#bbc7d2;font-size:.7rem;margin-bottom:4px}.tbl td:nth-child(4),.tbl td:nth-child(5),.tbl td:nth-child(7),.tbl td:nth-child(8){grid-column:auto}.tbl td:nth-child(1){grid-column:1/3;color:var(--orange);font-weight:700}.tbl td:last-child{grid-column:1/3;text-align:right}.tbl input,.tbl select{font-size:.86rem;min-width:0}.summarygrid{grid-template-columns:1fr}.btn{font-size:.86rem;padding:9px 11px}}
 @media print{header,.noPrint,.drop,.cropbox,.btn,.status,.progress,.foot{display:none!important}body{background:white;color:black}.panel,.stat{border:1px solid #aaa;box-shadow:none;background:white;color:black}.tbl{min-width:0;font-size:8pt}.tbl th{background:#ddd;color:#111}.tbl tr{break-inside:avoid}.tbl input,.tbl select{border:0;background:none;color:#111;padding:0}.gridtop{display:block}.stat strong{color:black}.stats{display:flex;justify-content:space-around}.sectionrow{display:block}.wrap{max-width:none;padding:6px}h2{color:black!important}}
+
+.dailyControls{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0 16px}
+.dailyControls label{display:grid;gap:5px;color:var(--muted);font-size:.8rem}
+.dailyControls input,.dailyControls select{border:1px solid #5b6570;background:#1c252e;color:white;padding:9px 10px;border-radius:8px;font:inherit;max-width:190px}
+.dailyGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.dailyEntry{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #45505b;background:#20262d;border-radius:8px;padding:8px 10px;min-height:49px}
+.dailyEntry span{font-size:.78rem;line-height:1.3;color:#e3e8ed;min-width:0}
+.dailyEntry input{flex:0 0 110px;min-width:0;width:110px;padding:8px;border:1px solid #64717e;background:#151c22;color:#f5f7f9;border-radius:7px;text-align:right;font:inherit;font-size:.87rem}
+.dailySection{grid-column:1/-1;padding:8px 10px;background:#35404b;border-left:4px solid #ffa24b;border-radius:6px;font-weight:bold;font-size:.86rem}
+.dailyEntry.auto{border-color:#277c63;background:#1d342e}
+@media(max-width:1050px){.dailyGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.dailyGrid{grid-template-columns:1fr}.dailyEntry input{flex-basis:120px}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V2.0</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">ส่งออก Excel</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
+<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.0</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">ส่งออก Excel</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
 <main class="wrap">
 <div class="notice">ระบบนี้อ่านด้วย OCR บนอุปกรณ์ของคุณ ไม่อัปโหลดภาพไปยังเซิร์ฟเวอร์ของแอพ แต่ต้องดาวน์โหลดไลบรารี OCR และโมเดลภาษาจากผู้ให้บริการ CDN เมื่อออนไลน์ <strong>ข้อมูล OCR เป็นข้อมูลรอตรวจสอบ</strong> จนกว่าจะตรวจเทียบสลิปจริง และไม่ควรเก็บเลขบัตรเต็มในแอพ</div>
 <div class="stats"><div class="stat"><div class="lbl">ธุรกรรมที่แยกได้</div><strong id="statCount">0</strong><span class="unit">รายการ (ไม่รวมสรุปซ้ำ)</span></div><div class="stat"><div class="lbl">ยอดขายบัตร EDC</div><strong id="statTotal">0.00</strong><span class="unit">บาท</span></div><div class="stat"><div class="lbl">รายการรอตรวจสอบ</div><strong id="statReview">0</strong><span class="unit">รายการ</span></div><div class="stat"><div class="lbl">ส่วนต่าง Settlement</div><strong id="statDiff">—</strong><span class="unit">บาท (ถ้ามียอดอ้างอิง)</span></div></div>
@@ -37,13 +49,22 @@
 </div><p class="hint" id="reconcileText">ยังไม่มียอดอ้างอิงสำหรับตรวจ EDC</p>
 <div class="notice good"><strong>ตัวอย่างวันที่ 28/10/2569 เท่านั้น (ไม่ใช่ยอดของวันอื่น)</strong><div style="margin-top:5px">EDC 10 รายการ = 1,065.00 บาท; QRPayment API = 14,488.00 บาท; QR API รวมทุกประเภท = 14,828.00 บาท; POS ก่อนส่วนลด 25,849.00 บาท; ส่วนลด 612.00 บาท; POS สุทธิ 25,237.00 บาท</div></div>
 </section></div>
-<section class="panel" style="margin-top:16px"><div class="sectionrow"><div><h2>3. ทะเบียนรายการสลิป (แก้ไขข้อมูลได้)</h2><p class="hint">ไม่แสดงเลขบัตรเต็ม / หากไม่ทราบชื่อผู้ถือบัตร ธนาคารผู้ออก หรือเลขบัญชีรับ ให้ปล่อยว่า “ไม่ปรากฏ”</p></div><div class="actionbar noPrint"><button class="btn" id="addRow">+ เพิ่มรายการ</button><button class="btn" id="showOcr">เปิด/ปิดข้อความ OCR</button></div></div>
+
+<section class="panel noPrint" id="dailyPanel" style="margin-top:16px">
+  <div class="sectionrow"><div><h2>3. บันทึกยอดตามหมวดรายวัน (แบบ Excel ต้นฉบับ)</h2><div class="hint">เลือกเดือนและวันที่ → กรอกยอดจากรายงาน POS และเอกสารอื่น • ยอด EDC ของหมวด VISA / Master / KBank Card จะดึงจากทะเบียนสลิปอัตโนมัติ • วันอื่นจะไม่ปะปนกัน</div></div><button class="btn good" id="loadPOS28">เติมยอด POS ตัวอย่าง 28/10/2569</button></div>
+  <div class="dailyControls"><label>เลือกเดือน / ค.ศ.<input id="reportMonth" type="month" value="2026-10" /></label><label>วันที่ (ชีต Excel)<select id="reportDay"></select></label><label>อัตราค่าธรรมเนียม EDC ตามแม่แบบ (%)<input id="rateEDC" type="number" min="0" step="0.01" value="0.5"></label><label>LINE MAN (%)<input id="rateLine" type="number" min="0" step="0.1" value="14.5"></label><label>Shopee (%)<input id="rateShopee" type="number" min="0" step="0.1" value="14.5"></label><label>Robinhood (%)<input id="rateRobinhood" type="number" min="0" step="0.1" value="10"></label><label>Grab (%)<input id="rateGrab" type="number" min="0" step="0.1" value="15"></label></div>
+  <div class="notice" style="margin-bottom:12px">อัตราค่าธรรมเนียมเริ่มต้นคัดลอกจากไฟล์ Excel เดิม ยังไม่ได้ยืนยันกับสัญญาปัจจุบัน • ช่องว่างหมายถึงยังไม่มีหลักฐาน ไม่เท่ากับศูนย์ • ชื่อหมวดและรหัสบัญชียึดตามไฟล์ต้นฉบับ</div>
+  <div class="dailyGrid" id="dailyGrid"></div>
+  <div class="summarygrid" style="margin-top:14px"><div>ยอดหมวดจากสลิป EDC <b id="selectedEDC">—</b></div><div>ยอดรับเงินที่จัดหมวดแล้ว <b id="selectedClassified">—</b></div><div>ยอด POS สุทธิอ้างอิง <b id="selectedPOS">—</b></div><div>ส่วนต่างเทียบ POS <b id="selectedDiff">—</b></div></div>
+</section>
+
+<section class="panel" style="margin-top:16px"><div class="sectionrow"><div><h2>4. ทะเบียนรายการสลิป (แก้ไขข้อมูลได้)</h2><p class="hint">ไม่แสดงเลขบัตรเต็ม / หากไม่ทราบชื่อผู้ถือบัตร ธนาคารผู้ออก หรือเลขบัญชีรับ ให้ปล่อยว่า “ไม่ปรากฏ”</p></div><div class="actionbar noPrint"><button class="btn" id="addRow">+ เพิ่มรายการ</button><button class="btn" id="showOcr">เปิด/ปิดข้อความ OCR</button></div></div>
 <div class="tablewrap"><table class="tbl"><thead><tr><th>#</th><th>วัน / เวลา</th><th>ชนิดบัตร</th><th>TRACE</th><th>เลขบัตรปิดบัง</th><th>กลุ่ม</th><th>ผู้โอน/ถือบัตร</th><th>ธนาคารผู้ออก</th><th>ธนาคารรับ</th><th>ผู้รับ</th><th>จำนวนเงิน</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="tbody"></tbody></table></div>
 <div class="hint" style="margin-top:12px">ยอดในทะเบียนคำนวณจากรายการขายเท่านั้น • ไม่รวมข้อมูลสรุป, ใบ Settlement, QR Summary หรือรายการที่ถูกระบุว่าซ้ำ</div>
 </section>
-<section class="panel noPrint" style="margin-top:16px;display:none" id="ocrPanel"><h2>4. ข้อความ OCR และเหตุผลการคัดกรอง</h2><pre id="ocrDump" style="white-space:pre-wrap;word-wrap:break-word;color:#b8c9d6;font-size:.78rem;max-height:360px;overflow:auto"></pre></section>
+<section class="panel noPrint" style="margin-top:16px;display:none" id="ocrPanel"><h2>5. ข้อความ OCR และเหตุผลการคัดกรอง</h2><pre id="ocrDump" style="white-space:pre-wrap;word-wrap:break-word;color:#b8c9d6;font-size:.78rem;max-height:360px;overflow:auto"></pre></section>
 <section class="panel noPrint" style="margin-top:16px"><h2>วิธีใช้งานและข้อจำกัดสำคัญ</h2><div class="helpdetails"><p><strong>การสแกน:</strong> อัปโหลดรูป → กดสแกนเอกสารทั้งหมด → ตรวจแต่ละแถว → ปรับข้อมูลที่ OCR อ่านผิด → ใส่ยอด Settlement → ส่งออก Excel หรือ PDF หากกระดาษติดกันจนตัดผิด ให้ใช้ “เลือกกรอบในภาพ” สแกนแยก</p><p><strong>ไม่เดาข้อมูล:</strong> “KBank” บนเครื่องรับบัตรคือธนาคารผู้รับชำระ (Acquirer) ไม่ได้แปลว่าบัตรลูกค้าทุกใบออกโดย KBank และหมายเลข MID/TID ไม่ใช่เลขบัญชีธนาคารรับเงินจริง</p><p><strong>เลขบัตร:</strong> ระบบแสดงเฉพาะรูปแบบปิดบัง หาก OCR ได้เลขบัตรเต็มจะตัดให้เหลือ 4 หลักท้าย ห้ามเก็บ CVV หรือข้อมูลบัตรเต็ม</p><p><strong>ป้องกันยอดซ้ำ:</strong> ระบบรับเฉพาะบล็อก SALE/SALES ที่มีจำนวนเงินและหลักฐานธุรกรรม, พยายามจับ TRACE ซ้ำ และกันรายงานสรุป TOTAL/SETTLEMENT ออก แต่ภาพมุมเอียง/ไม่ชัดอาจต้องแก้เอง</p><p><strong>ข้อมูล:</strong> เก็บรายการไว้ใน localStorage ของเบราว์เซอร์เครื่องนั้นเท่านั้น การล้างข้อมูลเว็บอาจทำให้ข้อมูลหาย ควรสำรอง JSON หรือ Excel เป็นระยะ</p><p><strong>การเปิดใช้งาน:</strong> ตั้งชื่อไฟล์นี้เป็น index.html แล้วนำไปวางใน GitHub Pages repository เดิม เปิดผ่าน HTTPS เพื่อให้กล้องมือถือใช้งานได้ OCR ต้องเชื่อมอินเทอร์เน็ตตอนโหลดโมเดล</p></div></section>
-<div class="foot">AMZ Credit Audit V2.0 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
+<div class="foot">AMZ Credit Audit V3.0 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
 </main>
 <script>
 'use strict';
@@ -62,19 +83,102 @@ const examples=[
 ['10:30:52','THB-Visa','4050 16** **** 4017','000729',125],
 ['10:59:41','UOB-Visa','4033 75** **** 5254','000730',60],
 ['14:16:31','MASTER','5432 15** **** 4576','000731',185]];
-function groupOf(kind){return /blue/i.test(kind)?'KBANK-CARD':/master/i.test(kind)?'MASTERCARD':/visa/i.test(kind)?'VISA-CARD':'ยังไม่จำแนก';}
+function groupOf(kind){return /jcb/i.test(kind)?'JCB':/blue/i.test(kind)?'KBANK-CARD':/master/i.test(kind)?'MASTERCARD':/visa/i.test(kind)?'VISA-CARD':'ยังไม่จำแนก';}
 function blankRecord(){return {date:'',time:'',type:'ไม่ทราบ',trace:'',masked:'',group:'ยังไม่จำแนก',sender:'ไม่ปรากฏ',issuer:'ไม่ปรากฏ',acquirer:'KBank (เครื่อง EDC)',receiver:'Café Amazon',receiverAccount:'ไม่ปรากฏ',amount:0,status:'ตรวจสอบ',source:'กรอกมือ'};}
 function safeMask(s){let x=String(s||'').trim(); if(!x)return '';const digits=x.replace(/\D/g,'');if(digits.length>=12&&!x.includes('*')&&!x.includes('X'))return '**** **** **** '+digits.slice(-4);return x.replace(/\b\d{12,19}\b/g,m=>'**** **** **** '+m.slice(-4));}
 function normalizeRecord(raw){const r={...blankRecord(),...raw};r.amount=Math.round((Number(r.amount)||0)*100)/100;r.masked=safeMask(r.masked);r.trace=String(r.trace||'').replace(/[^0-9A-Za-z]/g,'').slice(0,24);r.status=['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ'].includes(r.status)?r.status:'ตรวจสอบ';return r;}
 function uniqueId(r){return r.trace && r.date ? `${r.date}|${r.trace}` : ''}
-function addRecords(newRecords){let added=0,dup=0;for(const x of newRecords){const r=normalizeRecord(x);if(!(r.amount>0))continue;const key=uniqueId(r);const prior=records.find(z=>(key&&uniqueId(z)===key)||(r.trace&&z.trace===r.trace&&r.amount===z.amount&&(!r.date||!z.date||r.date===z.date))||(r.masked&&z.masked===r.masked&&r.date&&z.date===r.date&&r.time&&z.time===r.time&&r.amount===z.amount));if(prior){dup++; if((prior.masked||'').length<(r.masked||'').length) Object.assign(prior,{masked:r.masked,type:r.type,group:r.group});continue;}records.push(r);added++;}save();render();return {added,dup};}
-function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({records,settlement:$('settlementInput').value,qr:$('qrInput').value,pos:$('posInput').value}));}catch(e){setStatus('พื้นที่บันทึกเบราว์เซอร์ไม่เพียงพอ โปรดส่งออกไฟล์สำรอง');}}
-function restore(){try{const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');records=Array.isArray(data.records)?data.records.map(normalizeRecord):[];$('settlementInput').value=data.settlement??'';$('qrInput').value=data.qr??'';$('posInput').value=data.pos??'';}catch(e){records=[];}render();}
+function addRecords(newRecords){let added=0,dup=0;for(const x of newRecords){const r=normalizeRecord(x);if(!(r.amount>0))continue;const key=uniqueId(r);const prior=records.find(z=>(key&&uniqueId(z)===key)||(r.trace&&z.trace===r.trace&&r.amount===z.amount&&(!r.date||!z.date||r.date===z.date))||(r.masked&&z.masked===r.masked&&r.date&&z.date===r.date&&r.time&&z.time===r.time&&r.amount===z.amount));if(prior){dup++; if((prior.masked||'').length<(r.masked||'').length) Object.assign(prior,{masked:r.masked,type:r.type,group:r.group});continue;}records.push(r);added++;}save();renderDailyInputs();render();return {added,dup};}
+
+// === V3: multi-day POS ledger. Blank and zero have different meanings. ===
+const AMZ_LAYOUT={
+4:['เงินสดจากการขาย','1111-03','KBank 8851','ฝากวันถัดไป'],
+5:['VISA + PTT BLUECADIT','1142-05','KBank 8851','ภายในวัน'],
+6:['Master','1142-05','KBank 8851','ภายในวัน'],
+7:['KBANK-VISA+Master(KBANK CARD)','1142-05','KBank 8851','ภายในวัน'],
+8:['JCB','1142-05','KBank 8853','ภายในวัน'],
+9:['OR Gift Gard','1142-05','KBank 8851','ภายในวัน'],
+10:['PTT- Privilege','1142-05','KBank 8851','ภายในวัน'],
+11:['Kbank TPN','1142-05','KBank 8852','ภายในวัน'],
+12:['Kbank-statement-รวมยอด','SUM','',''],
+13:['QRPayment(API)','1142-06','KBank 8851','ภายในวัน'],
+14:['QR/KPLUS','1142-06','KBank 8851','ภายในวัน'],
+15:['Blueplus+wallet-API','1142-06','KBank 8851','ภายในวัน'],
+16:['Kbank-statement-รวมยอด','SUM','',''],
+17:['Blueplus+CR','1142-13','KBank 8851','ภายในวัน'],
+18:['QR Credit(API)','1142-13','KBank 8852','ภายในวัน'],
+19:['Kbank-statement-รวมยอด','SUM','',''],
+20:['บัตรที่รับโอนเข้าบัญชีแยกยอด','','',''],
+21:['คูปอง Xplore (Blueplus+)แยกยอด','1143-24','KBank 8851','ทุกวันศุกร์'],
+22:['DTAC - TRUE','1143-11','KBank 5545','2 เดือน/ครั้ง'],
+23:['AIS','1143-05','','ตรวจสอบรอบรับเงิน'],
+24:['Ptt Blue Card (Redeem)','1143-02','KBank 5545','เดือนถัดไป'],
+25:['Blue Credit Card','1143-04','KBank 5545','2 เดือน/ครั้ง'],
+26:['Sumsung Galaxy','1143-08','KBank 5545','2 เดือน/ครั้ง'],
+27:['กรุงศรี','1143-17','KBank 5545','2 เดือน/ครั้ง'],
+28:['ส่วนลด 30 บาท K plus NEW','1143-32','KBank 5545','2 เดือน/ครั้ง'],
+29:['รวม บัตรที่รับโอนแยกยอด','SUM','',''],
+30:['Line man','1144-01','KBank 5545','วันถัดไป'],
+31:['Shopee','1144-04','KBank 5545','2-5 วัน'],
+32:['Robinhood','1144-03','SCB 9202','ภายในวัน'],
+33:['Grab','1144-02','KBank 5545','วันถัดไป'],
+34:['App เดลิเวอร์รี่','SUM','',''],
+35:['รวมขายสุทธิ(=ร/งPos)','','',''],
+37:['โปรโมชั่นส่งเสริมการขาย รอรับเงินคืน','','',''],
+38:['รายการ','','',''],
+39:['แลกฉลาก ฟรีเครื่องดื่ม 1 แก้ว','1143-38','KBank 5545','ตรวจสอบกำหนดจ่าย'],
+40:['คูปองบลูพลัส 30 บาท','1143-41','KBank 5545','เดือนถัดไป'],
+41:['Reward 1แก้ว ฟรี 1แก้ว 70%','1143-35','KBank 5545','1 เดือน/ครั้ง'],
+42:['Reward 1แก้ว ฟรี เบเกอรี 1ชิ้น 70%','1143-35','KBank 5545','1 เดือน/ครั้ง'],
+43:['รวมขายตามPromotion รอรับเงินคืน','','',''],
+44:['รวมรายได้ทางภาษี(รวมvat)','','',''],
+45:['โปรโมชั่นส่งเสริมการขายที่ขอคืนเงินไม่ได้ทั้งจำนวน','','',''],
+46:['รายการ','','',''],
+47:['ส่วนลด 5 บาท นำแก้วมาเอง','','',''],
+48:['ลด 20% เบเกอรีสด','','',''],
+49:['ซื้อครบลดเพิ่ม ส่วนลด30บ.สินค้า3in1','','',''],
+50:['ครัวซอง Set/ กาแฟ จับคู่ 99.-','','',''],
+51:['Perfect Match/ ชา จับคู่ 89.-','','',''],
+52:['Buy More Save More 15%','','',''],
+53:['Buy More Save More 20%','','',''],
+54:['รวมPromotion ที่ไม่ได้ยอดขาย','','',''],
+55:['รวมราคาขายต่อวัน-ก่อนส่วนลดทั้งสิ้น','','','']
+};
+const groupRows={5:'VISA-CARD',6:'MASTERCARD',7:'KBANK-CARD',8:'JCB'};
+const valueRows=[4,8,9,10,11,13,14,15,17,18,21,22,23,24,25,26,27,28,30,31,32,33,39,40,41,42,47,48,49,50,51,52,53];
+let dailyInputs={},dayRefs={},feeRates={edc:0.5,line:14.5,shopee:14.5,robinhood:10,grab:15};
+let selectedMonth='2026-10',selectedDay=28;
+function dayKey(day=selectedDay,month=selectedMonth){return month+'-'+String(day).padStart(2,'0')}
+function dayFromDate(raw){const m=String(raw||'').trim().match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);if(!m)return null;let [dd,mm,yyyy]=m.slice(1).map(Number);if(yyyy>=2400)yyyy-=543;else if(yyyy<100)yyyy=yyyy>70?1900+yyyy:2000+yyyy;if(dd<1||dd>31||mm<1||mm>12)return null;return `${yyyy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;}
+function rowsForDay(k){return records.filter(r=>r.status!=='ซ้ำ-ไม่นับ'&&dayFromDate(r.date)===k)}
+function moneyFromRecords(k,g){return Math.round(rowsForDay(k).filter(r=>r.group===g).reduce((a,r)=>a+(Number(r.amount)||0),0)*100)/100}
+function dayVal(k,row){if(groupRows[row]&&!(row===8&&!rowsForDay(k).some(r=>r.group==='JCB'))) {const rs=rowsForDay(k).filter(r=>r.group===groupRows[row]);return rs.length?moneyFromRecords(k,groupRows[row]):null;}const v=dailyInputs[k]?.[row];return v===''||v===null||v===undefined?null:Number(v)}
+function dayClassified(k){return [...valueRows,5,6,7].reduce((s,row)=>s+(dayVal(k,row)||0),0)}
+function currentDayTitle(){return `${String(selectedDay).padStart(2,'0')}/${selectedMonth.slice(5)}/${selectedMonth.slice(0,4)}`;}
+function createDayInputs(){const sel=$('reportDay');for(let i=1;i<=31;i++)sel.add(new Option(String(i),String(i)));sel.value=String(selectedDay);$('reportMonth').value=selectedMonth;renderDailyInputs()}
+function loadDayRefs(){const x=dayRefs[dayKey()]||{};$('settlementInput').value=x.settlement??'';$('qrInput').value=x.qr??'';$('posInput').value=x.pos??'';}
+function storeDayRefs(){dayRefs[dayKey()]={settlement:$('settlementInput').value,qr:$('qrInput').value,pos:$('posInput').value};}
+function renderDailyInputs(){const k=dayKey(),root=$('dailyGrid');root.replaceChildren();const groups=[['รับเงินจากการขาย',[4,5,6,7,8,9,10,11]],['QR และ Blueplus API',[13,14,15,17,18]],['คูปองและบัตรที่รอรับเงินคืน',[21,22,23,24,25,26,27,28]],['แอพเดลิเวอรี่',[30,31,32,33]],['Promotion รอรับคืน',[39,40,41,42]],['Promotion ส่วนลดที่ไม่ได้รับคืน',[47,48,49,50,51,52,53]]];
+for(const [heading,rs] of groups){const h=document.createElement('div');h.className='dailySection';h.textContent=heading;root.append(h);for(const row of rs){const box=document.createElement('label');box.className='dailyEntry'+(groupRows[row]?' auto':'');const label=document.createElement('span');label.textContent=`${row}. ${AMZ_LAYOUT[row][0]}`;const inp=document.createElement('input');inp.type='number';inp.step='0.01';inp.min='0';inp.placeholder=groupRows[row]?'จากสลิป':'ยังไม่ระบุ';const v=dayVal(k,row);inp.value=v===null?'':String(v);if(groupRows[row]&&!(row===8&&!rowsForDay(k).some(r=>r.group==='JCB'))){inp.disabled=true;inp.title='อ่านจากทะเบียนสลิปของวันที่นี้ หากไม่มีข้อมูลให้เพิ่มรายการขายด้านล่าง';}else{inp.dataset.row=String(row);inp.addEventListener('change',()=>{dailyInputs[k]??={};if(inp.value.trim()==='')delete dailyInputs[k][row];else dailyInputs[k][row]=Number(inp.value);save();updateDailySummary();});}box.append(label,inp);root.append(box);}}
+const extra=document.createElement('div');extra.className='dailySection';extra.textContent='ข้อมูลสำหรับกระทบยอด (ไม่จัดเป็นยอดขายเพิ่มอัตโนมัติ)';root.append(extra);
+for(const [key,label] of [['posGross','POS Total Sales ก่อนส่วนลด'],['unknownPayment','ยอดรับเงิน POS ยังไม่จัดหมวด'],['unknownDiscount','ส่วนลด POS ยังไม่จัดหมวด']]){const box=document.createElement('label');box.className='dailyEntry';const span=document.createElement('span');span.textContent=label;const input=document.createElement('input');input.type='number';input.step='0.01';input.min='0';input.placeholder='ยังไม่ระบุ';input.value=dailyInputs[k]?.[key]??'';input.addEventListener('change',()=>{dailyInputs[k]??={};if(input.value.trim()==='')delete dailyInputs[k][key];else dailyInputs[k][key]=Number(input.value);save();updateDailySummary()});box.append(span,input);root.append(box)}updateDailySummary();}
+function updateDailySummary(){const k=dayKey(),edc=rowsForDay(k).reduce((s,r)=>s+(Number(r.amount)||0),0),gross=dayClassified(k),ref=dayRefs[k]?.pos;for(const [id,val] of [['selectedEDC',edc],['selectedClassified',gross]])$(id).textContent=money(val);$('selectedPOS').textContent=ref===''||ref==null?'ยังไม่ระบุ':money(ref);$('selectedDiff').textContent=ref===''||ref==null?'—':money(gross-Number(ref));}
+function selectedDayChanged(){selectedMonth=$('reportMonth').value||selectedMonth;selectedDay=Number($('reportDay').value)||1;loadDayRefs();renderDailyInputs();render()}
+function loadPOS28(){selectedMonth='2026-10';selectedDay=28;$('reportMonth').value=selectedMonth;$('reportDay').value='28';const k=dayKey();dailyInputs[k]??={};Object.assign(dailyInputs[k],{4:7900,13:14488,14:0,15:115,17:110,18:115,23:40,24:340,30:210,31:215,32:0,33:589,47:300,unknownPayment:50,unknownDiscount:303,posGross:25849}); // 50 reward points is not confirmed as Xplore; 303 discounts not individually classified
+// documented POS discount items: 300 bring-cup, 9 bakery; remainder = 303
+Object.assign(dailyInputs[k],{48:9,unknownDiscount:303});
+dayRefs[k]={settlement:'1065',qr:'14828',pos:'25237'};loadDayRefs();save();renderDailyInputs();render();setStatus('เติม POS วันที่ 28/10: 50 บาทจาก Blueplus 250 คะแนนยังไม่ได้ยืนยันว่าเข้าหมวด Xplore จึงแสดงเป็นยอดไม่จัดหมวด และส่วนลดอีก 303 บาทยังไม่แยกประเภท');}
+$('reportMonth').addEventListener('change',selectedDayChanged);$('reportDay').addEventListener('change',selectedDayChanged);
+$('loadPOS28').addEventListener('click',loadPOS28);
+for(const [id,k] of [['rateEDC','edc'],['rateLine','line'],['rateShopee','shopee'],['rateRobinhood','robinhood'],['rateGrab','grab']])$(id).addEventListener('change',()=>{const n=Number($(id).value);if(Number.isFinite(n)&&n>=0&&n<=100){feeRates[k]=n;save();}});
+
+function save(){try{localStorage.setItem(STORAGE_KEY,(storeDayRefs(),JSON.stringify({schema:'amz-v3',records,dayRefs,dailyInputs,feeRates,selectedMonth,selectedDay,settlement:$('settlementInput').value,qr:$('qrInput').value,pos:$('posInput').value})));}catch(e){setStatus('พื้นที่บันทึกเบราว์เซอร์ไม่เพียงพอ โปรดส่งออกไฟล์สำรอง');}}
+function restore(){try{const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');records=Array.isArray(data.records)?data.records.map(normalizeRecord):[];dailyInputs=data.dailyInputs||{};dayRefs=data.dayRefs||{};feeRates={...feeRates,...(data.feeRates||{})};selectedMonth=data.selectedMonth||'2026-10';selectedDay=data.selectedDay||28; if(!data.dayRefs&&(data.settlement||data.qr||data.pos))dayRefs[dayKey()]={settlement:data.settlement,qr:data.qr,pos:data.pos};}catch(e){records=[];}createDayInputs();loadDayRefs();for(const [id,k] of [['rateEDC','edc'],['rateLine','line'],['rateShopee','shopee'],['rateRobinhood','robinhood'],['rateGrab','grab']])$(id).value=feeRates[k];render();}
 function setStatus(msg){$('status').textContent=msg;}
 function refTotal(){let n=parseFloat($('settlementInput').value);return $('settlementInput').value.trim()!=='' && Number.isFinite(n)&&n>=0 ? n : null;}
-function currentTotal(){return records.filter(r=>r.status!=='ซ้ำ-ไม่นับ').reduce((n,r)=>n+(Number(r.amount)||0),0)}
-function render(){const total=currentTotal(),ref=refTotal(), active=records.filter(r=>r.status!=='ซ้ำ-ไม่นับ');$('statCount').textContent=active.length;$('statTotal').textContent=money(total);$('statReview').textContent=active.filter(r=>r.status!=='ยืนยัน').length;$('statDiff').textContent=ref===null?'—':money(total-ref);$('edcScan').textContent=money(total);$('edcRefLabel').textContent=ref===null?'ยังไม่กรอก':money(ref);$('qrRefLabel').textContent=$('qrInput').value?money($('qrInput').value):'ยังไม่กรอก';$('posRefLabel').textContent=$('posInput').value?money($('posInput').value):'ยังไม่กรอก';$('reconcileText').textContent=ref===null?'กรอกยอด Settlement จากรายงาน EDC เพื่อเทียบรายการขาย':'ส่วนต่าง = '+money(total-ref)+' บาท'+(Math.abs(total-ref)<0.01?' • ตรงยอด Settlement':' • ไม่ตรง โปรดตรวจรายการซ้ำ/บิลขาด');
-const body=$('tbody');body.replaceChildren();const fields=[['date','วันที่'],['time','เวลา'],['type','ชนิดบัตร'],['trace','TRACE'],['masked','เลขบัตรปิดบัง'],['group','กลุ่ม'],['sender','ผู้โอน/ถือบัตร'],['issuer','ธนาคารผู้ออก'],['acquirer','ธนาคารรับ'],['receiver','ผู้รับ'],['amount','จำนวนเงิน'],['status','สถานะ']];records.forEach((r,idx)=>{let tr=document.createElement('tr');if(r.status!=='ยืนยัน')tr.className='uncertain';let num=document.createElement('td');num.dataset.label='ลำดับ';num.textContent='# '+(idx+1);tr.append(num); for(const [field,label] of fields){let td=document.createElement('td');td.dataset.label=label;let el;if(field==='status'){el=document.createElement('select');for(const opt of ['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ']){const o=new Option(opt,opt,opt===r.status,opt===r.status);el.add(o);}}else{el=document.createElement('input');el.type=field==='amount'?'number':'text';if(field==='amount'){el.step='0.01';el.className='num';}el.value=r[field]??'';}el.setAttribute('aria-label',label+' รายการ '+(idx+1));el.addEventListener('change',()=>{r[field]=field==='amount'?(parseFloat(el.value)||0):field==='masked'?safeMask(el.value):el.value;if(field==='type')r.group=groupOf(r.type);save();render();});td.append(el);tr.append(td);}let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);save();render()}});td.append(b);tr.append(td);body.append(tr);});$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');}
+function currentTotal(){return rowsForDay(dayKey()).reduce((n,r)=>n+(Number(r.amount)||0),0)}
+function render(){const total=currentTotal(),ref=refTotal(), active=rowsForDay(dayKey());$('statCount').textContent=active.length;$('statTotal').textContent=money(total);$('statReview').textContent=active.filter(r=>r.status!=='ยืนยัน').length;$('statDiff').textContent=ref===null?'—':money(total-ref);$('edcScan').textContent=money(total);$('edcRefLabel').textContent=ref===null?'ยังไม่กรอก':money(ref);$('qrRefLabel').textContent=$('qrInput').value?money($('qrInput').value):'ยังไม่กรอก';$('posRefLabel').textContent=$('posInput').value?money($('posInput').value):'ยังไม่กรอก';$('reconcileText').textContent=ref===null?'กรอกยอด Settlement จากรายงาน EDC เพื่อเทียบรายการขาย':'ส่วนต่าง = '+money(total-ref)+' บาท'+(Math.abs(total-ref)<0.01?' • ตรงยอด Settlement':' • ไม่ตรง โปรดตรวจรายการซ้ำ/บิลขาด');
+const body=$('tbody');body.replaceChildren();const fields=[['date','วันที่'],['time','เวลา'],['type','ชนิดบัตร'],['trace','TRACE'],['masked','เลขบัตรปิดบัง'],['group','กลุ่ม'],['sender','ผู้โอน/ถือบัตร'],['issuer','ธนาคารผู้ออก'],['acquirer','ธนาคารรับ'],['receiver','ผู้รับ'],['amount','จำนวนเงิน'],['status','สถานะ']];records.forEach((r,idx)=>{let tr=document.createElement('tr');if(r.status!=='ยืนยัน')tr.className='uncertain';let num=document.createElement('td');num.dataset.label='ลำดับ';num.textContent='# '+(idx+1);tr.append(num); for(const [field,label] of fields){let td=document.createElement('td');td.dataset.label=label;let el;if(field==='status'){el=document.createElement('select');for(const opt of ['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ']){const o=new Option(opt,opt,opt===r.status,opt===r.status);el.add(o);}}else{el=document.createElement('input');el.type=field==='amount'?'number':'text';if(field==='amount'){el.step='0.01';el.className='num';}el.value=r[field]??'';}el.setAttribute('aria-label',label+' รายการ '+(idx+1));el.addEventListener('change',()=>{r[field]=field==='amount'?(parseFloat(el.value)||0):field==='masked'?safeMask(el.value):el.value;if(field==='type')r.group=groupOf(r.type);save();renderDailyInputs();render();});td.append(el);tr.append(td);}let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);save();renderDailyInputs();render()}});td.append(b);tr.append(td);body.append(tr);});$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');updateDailySummary();}
 function dateFromContext(s){const m=String(s).match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/);if(!m)return '';let y=Number(m[3]);if(y>=2400)y-=543;else if(y<100)y=y>=80?1900+y:2000+y;return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${y}`;}
 function extractCard(s){const m=String(s).match(/\b\d{4}\s+\d{2}[Xx*]{2}\s+[Xx*]{3,6}\s+\d{4}\b/);if(m)return safeMask(m[0]);const m2=String(s).match(/\b(?:\d{4}[ \-]*){3}\d{4}\b/);return m2?safeMask(m2[0]):'';}
 function classify(text){const s=text.toUpperCase();if(/QR\s*API\s*SETTLEMENT|TOTAL\s*\(POS\)|TOTAL\s*\(KBANK\)|PAYMENT\s+DETAIL/.test(s))return 'POS / QR SUMMARY';if(/DETAIL\s+REPORT|TRACE\s+NO|CARD\s+NUMBER/.test(s)&&/\bSALE\b/.test(s))return 'EDC DETAIL';if(/SETTLEMENT|GRAND\s+TOTAL/.test(s)&&!/\bSALE\b/.test(s))return 'EDC SETTLEMENT';if(/\bSALE\b|\bSALES\b/.test(s)&&/\bTHB\b/.test(s))return 'EDC RECEIPT';return 'OTHER';}
@@ -106,33 +210,119 @@ function posOnCanvas(e){const c=$('cropCanvas'),r=c.getBoundingClientRect();retu
 $('cropCanvas').addEventListener('pointerdown',e=>{e.preventDefault();$('cropCanvas').setPointerCapture(e.pointerId);let p=posOnCanvas(e);cropSelect={x1:p.x,y1:p.y,x2:p.x,y2:p.y};paintCrop();});$('cropCanvas').addEventListener('pointermove',e=>{if(!cropSelect||e.buttons===0)return;const p=posOnCanvas(e);cropSelect.x2=p.x;cropSelect.y2=p.y;paintCrop();});$('cropCanvas').addEventListener('pointerup',e=>{if(!cropSelect)return;const p=posOnCanvas(e);cropSelect.x2=p.x;cropSelect.y2=p.y;paintCrop();const img=images[0].img,c=$('cropCanvas'),x=Math.min(cropSelect.x1,cropSelect.x2),y=Math.min(cropSelect.y1,cropSelect.y2),w=Math.abs(cropSelect.x2-cropSelect.x1),h=Math.abs(cropSelect.y2-cropSelect.y1);cropBox={x:Math.round(x*img.naturalWidth/c.width),y:Math.round(y*img.naturalHeight/c.height),w:Math.round(w*img.naturalWidth/c.width),h:Math.round(h*img.naturalHeight/c.height)};});
 $('scanCrop').addEventListener('click',async()=>{if(!cropBox||cropBox.w<50||cropBox.h<50){setStatus('กรุณาลากกรอบให้ครอบใบสลิปก่อน');return;}if(busy)return;if(!window.Tesseract){setStatus('ไม่พบไลบรารี OCR');return;}busy=true;try{let img=images[0];const z=await processImage(img.img,img.file.name,cropBox);const n=addRecords(z.newItems);setStatus(`แยกกรอบแล้ว: เพิ่ม ${n.added} รายการ, ตรวจพบซ้ำ ${n.dup} รายการ`);}catch(e){setStatus('สแกนกรอบผิดพลาด: '+String(e));}finally{busy=false;render();}});
 $('slipFiles').addEventListener('change',e=>loadFiles(e.target.files));$('cameraFiles').addEventListener('change',e=>loadFiles(e.target.files));$('cameraBtn').addEventListener('click',()=>$('cameraFiles').click());$('folderBtn').addEventListener('click',()=>$('folderFiles').click());$('folderFiles').addEventListener('change',e=>loadFiles(e.target.files));$('manualCrop').addEventListener('click',cropCanvasLoad);$('cancelCrop').addEventListener('click',()=>$('cropBox').classList.remove('active'));$('scanAll').addEventListener('click',scanImages);
-for(const id of ['settlementInput','qrInput','posInput'])$(id).addEventListener('input',()=>{save();render()});$('loadExample').addEventListener('click',()=>{const data=examples.map(([time,type,masked,trace,amount])=>({...blankRecord(),date:'28/10/2026',time,type,masked,trace,group:groupOf(type),amount,source:'ตัวอย่างตรวจแล้ว: Detail Report 28/10/2569',status:'ยืนยัน'}));const result=addRecords(data);$('settlementInput').value='1065';$('qrInput').value='14828';$('posInput').value='25237';save();render();setStatus(`โหลดตัวอย่าง 10 บิล • เพิ่ม ${result.added} / ซ้ำ ${result.dup} • กรอกยอด Settlement 1,065 บาทแล้ว`);});
-$('addRow').addEventListener('click',()=>{records.push(blankRecord());save();render();});$('clearData').addEventListener('click',()=>{if(confirm('ลบข้อมูลสลิปและยอดอ้างอิงทั้งหมดในเบราว์เซอร์เครื่องนี้ใช่หรือไม่?')){records=[];images=[];ocrLog=[];$('fileList').replaceChildren();$('settlementInput').value='';$('qrInput').value='';$('posInput').value='';save();render();setStatus('ล้างข้อมูลเรียบร้อย');}});$('showOcr').addEventListener('click',()=>{$('ocrPanel').style.display=$('ocrPanel').style.display==='none'?'block':'none'});
+for(const id of ['settlementInput','qrInput','posInput'])$(id).addEventListener('input',()=>{save();render()});$('loadExample').addEventListener('click',()=>{const data=examples.map(([time,type,masked,trace,amount])=>({...blankRecord(),date:'28/10/2026',time,type,masked,trace,group:groupOf(type),amount,source:'ตัวอย่างตรวจแล้ว: Detail Report 28/10/2569',status:'ยืนยัน'}));const result=addRecords(data);$('settlementInput').value='1065';$('qrInput').value='14828';$('posInput').value='25237';selectedMonth='2026-10';selectedDay=28;$('reportMonth').value=selectedMonth;$('reportDay').value='28';save();renderDailyInputs();render();setStatus(`โหลดตัวอย่าง 10 บิล • เพิ่ม ${result.added} / ซ้ำ ${result.dup} • กรอกยอด Settlement 1,065 บาทแล้ว`);});
+$('addRow').addEventListener('click',()=>{records.push(blankRecord());save();render();});$('clearData').addEventListener('click',()=>{if(confirm('ลบข้อมูลสลิปและยอดอ้างอิงทั้งหมดในเบราว์เซอร์เครื่องนี้ใช่หรือไม่?')){records=[];images=[];ocrLog=[];$('fileList').replaceChildren();$('settlementInput').value='';$('qrInput').value='';$('posInput').value='';dailyInputs={};dayRefs={};save();renderDailyInputs();render();setStatus('ล้างข้อมูลเรียบร้อย');}});$('showOcr').addEventListener('click',()=>{$('ocrPanel').style.display=$('ocrPanel').style.display==='none'?'block':'none'});
 function downloadBlob(content,name,mime){const b=new Blob([content],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
-$('exportJson').addEventListener('click',()=>downloadBlob(JSON.stringify({schema:'amz-v2',records,settlement:refTotal(),qr:$('qrInput').value,pos:$('posInput').value,date:new Date().toISOString()},null,2),'AMZ_Credit_Backup.json','application/json'));
-$('importJsonBtn').addEventListener('click',()=>$('jsonFile').click());$('jsonFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());const z=addRecords((o.records||[]).map(normalizeRecord));if(o.settlement!==null&&o.settlement!==undefined)$('settlementInput').value=o.settlement;if(o.qr!==undefined)$('qrInput').value=o.qr;if(o.pos!==undefined)$('posInput').value=o.pos;save();render();setStatus(`นำเข้า JSON เพิ่ม ${z.added} รายการ / ซ้ำ ${z.dup} รายการ`);}catch(err){setStatus('ไฟล์ JSON ไม่ถูกต้อง: '+err.message)}e.target.value='';});
-function exportExcel(){if(!window.XLSX){setStatus('ไม่สามารถโหลด SheetJS โปรดเชื่อมต่ออินเทอร์เน็ต');return;}const wb=XLSX.utils.book_new();const head=['วันที่','เวลา','รายการ','ธนาคารผู้โอน/ผู้ออกบัตร','เลขบัตรแบบปิดบัง','ธนาคารผู้รับ','ผู้โอน/ผู้ถือบัตร','ผู้รับ','จำนวนเงิน (บาท)','TRACE','เลขบัญชีรับเงินจริง','กลุ่ม','สถานะ','แหล่งหลักฐาน'];const arr=[['Café Amazon | ตรวจสอบสลิป EDC'],['ข้อมูล OCR ต้องตรวจสอบต้นฉบับ / ไม่นับรายงาน Settlement เป็นธุรกรรม'],head];for(const r of records)arr.push([r.date,r.time,r.type,r.issuer,r.masked,r.acquirer,r.sender,r.receiver,Number(r.amount),r.trace,r.receiverAccount,r.group,r.status,r.source]);const last=arr.length+1;arr.push(['รวมธุรกรรมที่ไม่นับรายการซ้ำ','','','','','','','',null]);const ws=XLSX.utils.aoa_to_sheet(arr);ws['!cols']=[{wch:17},{wch:13},{wch:19},{wch:28},{wch:27},{wch:25},{wch:26},{wch:28},{wch:21},{wch:16},{wch:24},{wch:17},{wch:18},{wch:40}];ws[`I${last}`]={t:'n',f:records.length?`SUMIF(M4:M${last-1},"<>ซ้ำ-ไม่นับ",I4:I${last-1})`:'0'};XLSX.utils.book_append_sheet(wb,ws,'รายการสลิป');
-const grp=[['หมวด EDC','ยอดทะเบียน','ยอด Settlement อ้างอิง','ส่วนต่าง'],['VISA-CARD',0,'',''],['MASTERCARD',0,'',''],['KBANK-CARD',0,'',''],['อื่น/ไม่ทราบ',0,'',''],['ยอดรวม',null,refTotal()??'','']];for(const r of records.filter(z=>z.status!=='ซ้ำ-ไม่นับ')){let target={'VISA-CARD':1,'MASTERCARD':2,'KBANK-CARD':3}[r.group]??4;grp[target][1]+=Number(r.amount)||0;}grp[5][1]=currentTotal();grp[5][3]=refTotal()===null?'':currentTotal()-refTotal();const s2=XLSX.utils.aoa_to_sheet(grp);s2['!cols']=[{wch:30},{wch:19},{wch:28},{wch:18}];XLSX.utils.book_append_sheet(wb,s2,'กระทบยอด EDC');
-// Daily sheet mirrors the major rows of the uploaded 57-row workbook; blank sources remain blank.
-const daily=Array.from({length:57},()=>Array(8).fill(''));
-const put=(rr,cc,v)=>{daily[rr-1][cc-1]=v};
-put(1,1,'ตารางตรวจสอบยอดขาย อเมซอน / โครงสร้างเทียบไฟล์เดิม');
-put(2,1,'วันที่จากสลิป: '+([...new Set(records.map(r=>r.date).filter(Boolean))].join(', ')||'ยังไม่ระบุ'));
-['รายละเอียดบัตร','รหัสบัญชี','ยอดเงิน','ค่าธรรมเนียม','VAT ค่าธรรมเนียม','ยอดสุทธิประมาณการ','ธนาคารรับ/บัญชี','เงื่อนไขรับเงิน'].forEach((v,i)=>put(3,i+1,v));
-const titles={4:'เงินสดจากการขาย',5:'VISA + PTT BLUECADIT',6:'Master',7:'KBANK-VISA+Master(KBANK CARD)',8:'JCB',9:'OR Gift Card',10:'PTT Privilege',11:'Kbank TPN',12:'KBank Statement - รวมยอด',13:'QRPayment(API)',14:'QR/KPLUS',15:'Blueplus+wallet-API',16:'KBank Statement - รวมยอด',17:'Blueplus+CR',18:'QR Credit(API)',19:'KBank Statement - รวมยอด',20:'บัตรที่รับโอนเข้าบัญชีแยกยอด',21:'คูปอง Xplore',22:'DTAC TRUE',23:'AIS',24:'Ptt Blue Card Redeem',25:'Blue Credit Card',26:'Samsung Galaxy',27:'กรุงศรี',28:'Kplus NEW',29:'รวมบัตรที่รับโอนแยกยอด',30:'LINE MAN',31:'ShopeeFood',32:'Robinhood',33:'Grab',34:'App เดลิเวอร์รี่',35:'ยอดรับรวมจากหมวดที่กรอก (ยังไม่ใช่ POS)',37:'Promotion รอรับเงินคืน',38:'รายการ',39:'ฟรีเครื่องดื่ม',40:'คูปอง 30',41:'Reward 1 แก้ว',42:'Reward เบเกอรี',43:'รวม Promotion รอรับคืน',44:'รายได้ทางภาษีตามยอดที่กรอก',45:'ส่วนลดไม่ขอคืนเต็มจำนวน',46:'รายการส่วนลด',47:'ส่วนลดนำแก้วมาเอง',48:'ลดเบเกอรีสด',49:'ลดเบเกอรีแห้ง',50:'แลกซื้อ 1 บาท',51:'Reward',52:'คูปอง 30 บาท',53:'อื่น ๆ',54:'รวมส่วนลด',55:'รวมยอดก่อนลด (เมื่อมีข้อมูลครบ)'};
-for(const [row,txt] of Object.entries(titles))put(Number(row),1,txt);
-const categories={5:'VISA-CARD',6:'MASTERCARD',7:'KBANK-CARD'};
-for(const [row,cat] of Object.entries(categories))put(Number(row),3,records.filter(r=>r.status!=='ซ้ำ-ไม่นับ'&&r.group===cat).reduce((n,r)=>n+(Number(r.amount)||0),0));
-// If only QR grand total is available, do not force it into QRPayment alone.
-for(const [row,beg,end] of [[12,5,11],[16,13,15],[19,17,18],[29,21,28],[34,30,33]]){
- for(const [i,col] of ['C','D','E','F'].entries())put(row,3+i,{f:`SUM(${col}${beg}:${col}${end})`});
+$('exportJson').addEventListener('click',()=>downloadBlob(JSON.stringify({schema:'amz-v3',records,dailyInputs,dayRefs,feeRates,selectedMonth,selectedDay,date:new Date().toISOString()},null,2),'AMZ_Credit_Backup.json','application/json'));
+$('importJsonBtn').addEventListener('click',()=>$('jsonFile').click());$('jsonFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{let o=JSON.parse(await f.text());const z=addRecords((o.records||[]).map(normalizeRecord));if(o.schema==='amz-v3'){dailyInputs={...dailyInputs,...(o.dailyInputs||{})};dayRefs={...dayRefs,...(o.dayRefs||{})};feeRates={...feeRates,...(o.feeRates||{})};selectedMonth=o.selectedMonth||selectedMonth;selectedDay=o.selectedDay||selectedDay;$('reportMonth').value=selectedMonth;$('reportDay').value=String(selectedDay);loadDayRefs();renderDailyInputs();}if(o.settlement!==null&&o.settlement!==undefined)$('settlementInput').value=o.settlement;if(o.qr!==undefined)$('qrInput').value=o.qr;if(o.pos!==undefined)$('posInput').value=o.pos;save();render();setStatus(`นำเข้า JSON เพิ่ม ${z.added} รายการ / ซ้ำ ${z.dup} รายการ`);}catch(err){setStatus('ไฟล์ JSON ไม่ถูกต้อง: '+err.message)}e.target.value='';});
+
+// Export original file structure, 1-31: no invented amounts for missing sources.
+function exportExcel(){
+if(!window.XLSX){setStatus('ไม่สามารถโหลด SheetJS กรุณาเชื่อมต่ออินเทอร์เน็ต');return;}
+const wb=XLSX.utils.book_new();const ym=selectedMonth;const [year,month]=ym.split('-').map(Number);const daysInMonth=new Date(year,month,0).getDate();
+const fmtMoney='#,##0.00;[Red]-#,##0.00;"–"';
+function put(ws,address,v){if(v===null||v===undefined||v==='')return;ws[address]=typeof v==='number'?{t:'n',v}:{t:'s',v:String(v)}}
+function formula(ws,address,f){ws[address]={t:'n',f,z:fmtMoney};}
+function sumGroup(ws,rr,a,b){for(const c of 'CDEF')formula(ws,`${c}${rr}`,`IF(COUNT(${c}${a}:${c}${b})=0,"",SUM(${c}${a}:${c}${b}))`)}
+function cashRow(ws,row){formula(ws,`F${row}`,`IF(C${row}="","",C${row})`)}
+function prepareSheet(day){
+const key=dayKey(day,ym),valid=day<=daysInMonth,details=dailyInputs[key]||{};
+const matrix=Array.from({length:65},()=>Array(8).fill(''));
+matrix[0][0]='ตารางตรวจสอบยอดขาย อเมซอน';matrix[1][0]=`ประจำวันที่ ${day}/${String(month).padStart(2,'0')}/${year+543}`+(valid?'':' • ไม่มีวันนี้ในเดือนที่เลือก');
+matrix[2]=['รายละเอียดบัตร','รหัสบัญชี','ยอดเงิน','ค่าธรรมเนียม','Vat 7 %','ยอด Statement','Bank#No.','เงื่อนไขรับเงิน'];
+for(const [num,meta] of Object.entries(AMZ_LAYOUT)){const i=Number(num)-1;matrix[i][0]=meta[0];matrix[i][1]=meta[1];matrix[i][6]=meta[2];matrix[i][7]=meta[3];}
+matrix[36][0]='โปรโมชั่นส่งเสริมการขาย รอรับเงินคืน';matrix[37]=['รายการ','','ยอดได้คืน','ยอดไม่ได้คืน','มูลค่าส่วนลดรวม','เวลาโปร','',''];
+matrix[45]=['รายการ','จำนวน (แก้ว)','จำนวนเงินที่ไม่ได้คืน','','','','',''];
+matrix[56][0]='หมายเหตุ: ช่องว่าง = ไม่มีหลักฐาน / ค่าธรรมเนียมเป็นประมาณการจากอัตราที่ตั้งไว้';
+matrix[58][0]='ยอด POS สุทธิอ้างอิง';matrix[59][0]='ยอดหมวดรับเงินที่รวมได้';matrix[60][0]='ส่วนต่างจาก POS (รอตรวจสอบ)';matrix[61][0]='POS Total Sales ก่อนส่วนลด';matrix[62][0]='ส่วนต่างยอดก่อนส่วนลด';matrix[63][0]='ยอดรับเงินยังไม่จัดหมวด (ไม่นับเพิ่ม)';matrix[64][0]='ส่วนลด POS ยังไม่จัดหมวด (ใช้ใน C54)';
+const ws=XLSX.utils.aoa_to_sheet(matrix);
+ws['!cols']=[{wch:51},{wch:20},{wch:21},{wch:19},{wch:18},{wch:23},{wch:22},{wch:37}];
+ws['!rows']=Array.from({length:65},(_,i)=>({hpt:[0,2,19,36,44][i]||19}));ws['!autofilter']={ref:'A3:H55'};
+ws['!freeze']={xSplit:1,ySplit:3,topLeftCell:'B4',activePane:'bottomRight',state:'frozen'};
+for(const row of valueRows){const value=details[row];if(value!==undefined&&value!==''&&valid)put(ws,`C${row}`,Number(value));}
+for(const [row,g] of Object.entries(groupRows)){const re=rowsForDay(key).filter(r=>r.group===g);if(re.length&&valid)put(ws,`C${row}`,moneyFromRecords(key,g));else if(row==='8'&&details[8]!==undefined)put(ws,'C8',Number(details[8]));}
+for(const row of [5,6,7,8,9,10,11]){
+const pct="'ตั้งค่าอัตรา'!$B$2";
+formula(ws,`D${row}`,`IF(C${row}="","",ROUND(C${row}*${pct}/(1+'ตั้งค่าอัตรา'!$B$7),2))`);
+formula(ws,`E${row}`,`IF(C${row}="","",ROUND(C${row}*${pct}-D${row},2))`);
+formula(ws,`F${row}`,`IF(C${row}="","",ROUND(C${row}-D${row}-E${row},2))`);
 }
-put(35,3,{f:'SUM(C4,C12,C16,C19,C29,C34)'});
-put(55,3,{f:'C35+C54'});
-for(const [row,begin,end] of [[43,39,42],[54,47,53]])put(row,3,{f:`SUM(C${begin}:C${end})`});
-put(57,1,'คำเตือน: เฉพาะสลิป EDC ถูกใส่อัตโนมัติ ช่องทางรับเงินอื่นต้องกรอกเมื่อมีหลักฐาน POS');
-const ds=XLSX.utils.aoa_to_sheet(daily);ds['!cols']=[{wch:44},{wch:20},{wch:22},{wch:21},{wch:24},{wch:25},{wch:24},{wch:46}];XLSX.utils.book_append_sheet(wb,ds,'ผัง Excel เดิม 57 แถว');
-const refs=XLSX.utils.aoa_to_sheet([['รายการอ้างอิงจากรายงาน POS / Settlement','จำนวนเงิน (บาท)'],['EDC Settlement',refTotal()??''],['QR API',$('qrInput').value?Number($('qrInput').value):''],['POS Grand Total',$('posInput').value?Number($('posInput').value):''],['ยอด EDC สแกน',currentTotal()],['EDC ส่วนต่าง',refTotal()===null?'':currentTotal()-refTotal()],['หมายเหตุ','ไม่เดาข้อมูล POS ช่องทางอื่นจากสลิปบัตรเครดิต']]);refs['!cols']=[{wch:47},{wch:44}];XLSX.utils.book_append_sheet(wb,refs,'ยอดอ้างอิงรายวัน');
-XLSX.writeFile(wb,'AMZ_Credit_Transactions_'+new Date().toISOString().slice(0,10)+'.xlsx');}
+for(const row of [13,14,15,17,18,21,22,23,24,25,26,27,28])cashRow(ws,row);
+for(const [row,settingRow] of [[30,3],[31,4],[32,5],[33,6]]){
+const pct=`'ตั้งค่าอัตรา'!$B$${settingRow}`;
+formula(ws,`D${row}`,`IF(C${row}="","",ROUND(C${row}*${pct}/(1+'ตั้งค่าอัตรา'!$B$7),2))`);
+formula(ws,`E${row}`,`IF(C${row}="","",ROUND(C${row}*${pct}-D${row},2))`);
+formula(ws,`F${row}`,`IF(C${row}="","",ROUND(C${row}-D${row}-E${row},2))`);
+}
+cashRow(ws,4);
+for(const [row,a,b] of [[12,5,11],[16,13,15],[19,17,18],[29,21,28],[34,30,33]])sumGroup(ws,row,a,b);
+for(const c of ['C','D','E','F'])formula(ws,`${c}35`,`IF(COUNT(C4,C12,C16,C19,C29,C34)=0,"",SUM(${c}4,${c}12,${c}16,${c}19,${c}29,${c}34))`);
+for(const row of [39,40,41,42]){if(details[row]!==undefined&&valid)put(ws,`C${row}`,Number(details[row]));formula(ws,`E${row}`,`IF(COUNT(C${row}:D${row})=0,"",SUM(C${row}:D${row}))`)}
+for(const c of ['C','D','E'])formula(ws,`${c}43`,`IF(COUNT(${c}39:${c}42)=0,"",SUM(${c}39:${c}42))`);
+formula(ws,'C44','IF(C35="","",SUM(C35,C43))');
+for(const row of [47,48,49,50,51,52,53]){
+if(row===47)formula(ws,'B47','IF(C47="","",C47/5)');
+formula(ws,`D${row}`,`IF(C${row}="","",C${row})`);
+}
+formula(ws,'C54','IF(COUNT(C47:C53,C65)=0,"",SUM(C47:C53,C65))');
+formula(ws,'D54','IF(C54="","",SUM(C54,D43))');
+formula(ws,'C55','IF(C35="","",SUM(C35,E43,C54))');
+const posRef=dayRefs[key]?.pos;
+if(valid&&posRef!==undefined&&posRef!=='')put(ws,'C59',Number(posRef));
+formula(ws,'C60','IF(C35="","",C35)');
+formula(ws,'C61','IF(OR(C59="",C60=""),"",C60-C59)');
+if(valid&&details.posGross!==undefined)put(ws,'C62',Number(details.posGross));
+formula(ws,'C63','IF(OR(C55="",C62=""),"",C55-C62)');
+if(valid&&details.unknownPayment!==undefined)put(ws,'C64',Number(details.unknownPayment));if(valid&&details.unknownDiscount!==undefined)put(ws,'C65',Number(details.unknownDiscount));
+for(let rr=4;rr<=65;rr++)for(const col of ['C','D','E','F']){const a=`${col}${rr}`,c=ws[a];if(c&&c.t==='n')c.z=fmtMoney;}
+return ws;
+}
+// 31 sheets in the exact naming pattern used by source Excel, even for February.
+for(let d=1;d<=31;d++)XLSX.utils.book_append_sheet(wb,prepareSheet(d),String(d));
+const fees=XLSX.utils.aoa_to_sheet([
+['อัตราที่ใช้คำนวณ (แก้ไขใน Excel ได้)','อัตรา','หลักฐานและข้อจำกัด'],
+['EDC',feeRates.edc/100,'ตัวอย่างต้นฉบับ 0.5%: โปรดยืนยันสัญญา'],
+['LINE MAN',feeRates.line/100,'ต้นฉบับ 14.5%'],
+['Shopee',feeRates.shopee/100,'ต้นฉบับ 14.5%'],
+['Robinhood',feeRates.robinhood/100,'ต้นฉบับ 10%'],
+['Grab',feeRates.grab/100,'ต้นฉบับ 15%'],
+['VAT บนค่าธรรมเนียม',0.07,'เป็น VAT ค่าธรรมเนียม ไม่ใช่ VAT ขายสินค้า']]);
+fees['!cols']=[{wch:43},{wch:20},{wch:57}];for(let i=2;i<=7;i++)fees[`B${i}`].z='0.00%';XLSX.utils.book_append_sheet(wb,fees,'ตั้งค่าอัตรา');
+const overview=[['สรุปรายเดือน - Café Amazon '+ym],['ตัวเลขในช่อง "ยอด POS" และ "รวม" ต้องมีเอกสารประกอบ; ช่องว่างหมายถึงไม่มีข้อมูล'],['วันที่','เงินสด','VISA','Master','KBANK CARD','QR รวม','คูปอง/รับคืน','Delivery','รวมหมวด (C35)','POS สุทธิอ้างอิง','ผลต่าง POS','Gross ก่อนลด','POS Gross อ้างอิง','ผลต่าง Gross','สถานะ']];
+for(let day=1;day<=31;day++){
+let r=day+3;let sh=`'${day}'`;
+const sf=(refs)=>`IF(COUNT(${refs.map(x=>sh+'!'+x).join(',')})=0,"",SUM(${refs.map(x=>sh+'!'+x).join(',')}))`;
+overview.push([day,{f:`IF(${sh}!C4="","",${sh}!C4)`},{f:`IF(${sh}!C5="","",${sh}!C5)`},{f:`IF(${sh}!C6="","",${sh}!C6)`},{f:`IF(${sh}!C7="","",${sh}!C7)`},{f:sf(['C16','C19'])},{f:`IF(${sh}!C29="","",${sh}!C29)`},{f:`IF(${sh}!C34="","",${sh}!C34)`},{f:`IF(${sh}!C35="","",${sh}!C35)`},{f:`IF(${sh}!C59="","",${sh}!C59)`},{f:`IF(${sh}!C61="","",${sh}!C61)`},{f:`IF(${sh}!C55="","",${sh}!C55)`},{f:`IF(${sh}!C62="","",${sh}!C62)`},{f:`IF(${sh}!C63="","",${sh}!C63)`},{f:`IF(J${r}="","ยังไม่มี POS",IF(K${r}="","ข้อมูลไม่ครบ",IF(ABS(K${r})<0.01,"ตรง","ไม่ตรง")))`}]);
+}
+overview.push(['รวมทั้งเดือน']);const last=overview.length;for(let c=1;c<=13;c++){if(c===0)continue;const addr=XLSX.utils.encode_col(c);overview[last-1][c]={f:`SUM(${addr}4:${addr}${last-1})`};}
+const ms=XLSX.utils.aoa_to_sheet(overview);ms['!cols']=[{wch:13},...Array.from({length:13},()=>({wch:17})),{wch:20}];for(let row=4;row<=last;row++)for(let col=1;col<=13;col++){const cell=ms[XLSX.utils.encode_cell({r:row-1,c:col})];if(cell&&cell.f)cell.z=fmtMoney;}
+XLSX.utils.book_append_sheet(wb,ms,'สรุปรายเดือน');
+const headers=['วันที่','เวลา','ประเภทบัตร','กลุ่มบัญชี','เลขบัตร (ปิดบัง)','TRACE','ยอดเงิน','สถานะ','ผู้ถือบัตร','ธนาคารผู้ออก','ธนาคารรับ','ชื่อร้าน','บัญชีรับเงินจริง','แหล่งหลักฐาน'];
+const tx=[['รายการสลิปดิบ: ลงบัญชีเฉพาะข้อมูลที่ตรวจแล้ว'],['หมายเหตุ: เลขบัตรต้องปิดบัง / ไม่รวมรายการซ้ำ'],headers];
+for(const r of records){tx.push([r.date,r.time,r.type,r.group,safeMask(r.masked),r.trace,Number(r.amount)||0,r.status,r.sender,r.issuer,r.acquirer,r.receiver,r.receiverAccount,r.source])}
+const txSheet=XLSX.utils.aoa_to_sheet(tx);txSheet['!cols']=[{wch:18},{wch:14},{wch:18},{wch:20},{wch:28},{wch:15},{wch:17},{wch:16},{wch:23},{wch:24},{wch:27},{wch:26},{wch:24},{wch:44}];XLSX.utils.book_append_sheet(wb,txSheet,'ทะเบียนสลิป');
+const unresolved=[['วันที่','ยอด POS ที่ยังจัดหมวดไม่ได้','ส่วนลดที่ยังจำแนกประเภทไม่ได้','ข้อควรตรวจสอบ']];
+for(let d=1;d<=31;d++){const key=dayKey(d,ym),ds=dailyInputs[key]||{};if(ds.unknownPayment!=null||ds.unknownDiscount!=null)unresolved.push([key,ds.unknownPayment??'',ds.unknownDiscount??'','ยอดที่ไม่จัดหมวดห้ามนำไปบวกซ้ำกับยอดขายหลักก่อนตรวจสอบ'])}
+const us=XLSX.utils.aoa_to_sheet(unresolved);us['!cols']=[{wch:20},{wch:31},{wch:35},{wch:75}];XLSX.utils.book_append_sheet(wb,us,'รายการรอตรวจ');
+const help=[
+['วิธีใช้งานไฟล์ Excel รายเดือน'],
+['31 ชีต ชื่อ 1 ถึง 31','โครงสร้าง A1:H55 เหมือนไฟล์ต้นฉบับ / เดือนสั้นมีวันที่ไม่เกิดขึ้น ให้เว้นว่าง'],
+['C5:C8','มาจากรายการ EDC ที่มีวันที่ตรงกันและไม่ถูกทำเครื่องหมายซ้ำ'],
+['C4, C9:C33','รับจากแบบฟอร์มยอด POS รายวัน; หากไม่มีหลักฐานปล่อยว่าง'],
+['D/E/F','ค่าธรรมเนียมประมาณการจากชีต ตั้งค่าอัตรา / ยอด Statement ต้องตรวจสเตทเมนต์เงินจริง'],
+['C35','รวมช่องทางรับเงินที่จัดหมวด; ไม่บวกยอด subtotal ซ้ำ'],
+['F35','ยอดรับสุทธิคำนวณจาก F4, F12, F16, F19, F29, F34 ครบทุกกลุ่ม'],
+['C54','รวมส่วนลดที่ระบุประเภท + ยอดส่วนลดไม่จัดหมวดจาก POS (หากกรอก)'],
+['C55','รวมราคาขายก่อนลด = C35 + E43 + C54 ตามโครงสร้างเดิม'],
+['C59:C65','ช่วงเพิ่มสำหรับกระทบยอด: POS net / รวมหมวด / ส่วนต่าง / POS gross / ส่วนต่าง / ยอดยังไม่จัดหมวด'],
+['หมายเหตุ','ห้ามถือว่าชีตว่างเป็นศูนย์หรือว่าวันนั้นไม่ขาย / โปรดกรอก POS ให้ครบก่อนยืนยัน'],
+['แหล่งข้อมูล','ชื่อหมวด รหัสบัญชี บัญชีรับ และรอบรับเงินจาก template: ตรวจสอบบัตรเครดิตAMZ(1).xlsx'],
+['ข้อจำกัด','การ OCR บัตรเครดิตไม่ระบุเงินสด/QR/คูปอง/Delivery ทั้งหมด ต้องใช้ POS เพิ่มเติม']];
+const hs=XLSX.utils.aoa_to_sheet(help);hs['!cols']=[{wch:32},{wch:107}];XLSX.utils.book_append_sheet(wb,hs,'คู่มือ');
+wb.Workbook={...(wb.Workbook||{}),CalcPr:{fullCalcOnLoad:true}};
+XLSX.writeFile(wb,`AMZ_ตรวจสอบยอดรายวัน_${ym}_1-31.xlsx`);
+setStatus(`ส่งออก Excel เดือน ${ym} แล้ว: 31 ชีตวันที่ 1–31 พร้อมสรุปรายเดือน/ทะเบียนสลิป/ตั้งค่าอัตรา/คู่มือ`);
+}
+
 $('exportXlsx').addEventListener('click',exportExcel);$('exportPdf').addEventListener('click',()=>window.print());restore();
 </script></body></html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171B20">
-<title>AMZ Credit Audit | Slip Scanner V3.6</title>
+<title>AMZ Credit Audit | Slip Scanner V3.7</title>
 <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -25,10 +25,21 @@
 .dailyEntry.auto{border-color:#277c63;background:#1d342e}
 @media(max-width:1050px){.dailyGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.dailyGrid{grid-template-columns:1fr}.dailyEntry input{flex-basis:120px}}
+
+/* V3.7: inline validation, obvious confirmation feedback, mobile readable */
+.tbl tr.row-error td{background:#433039!important}
+.tbl tr.row-ok td{background:#1f4338!important}
+.tbl input.field-error{border:2px solid #ff8585;background:#40272c}
+.tbl .row-hint{display:block;font-size:.76rem;line-height:1.45;margin-top:5px;color:#ffd6a1;max-width:150px}
+#rowActionFeedback{font-size:.91rem;font-weight:650;white-space:pre-line}
+#rowActionFeedback.feedback-error{border-color:#b96e62;background:#442b2b;color:#fff0e8}
+#rowActionFeedback.feedback-success{border-color:#2b9275;background:#1d4337;color:#d7fff0}
+.tbl tr.row-error select{border-color:#ffa24b}
+@media (max-width:760px){.tbl .row-hint{max-width:none}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.6</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">บันทึก Excel</button><button class="btn good" id="shareXlsx">แชร์ Excel (มือถือ)</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
+<header><div class="wrap"><div class="brand">◫ AMZ CREDIT AUDIT <span style="color:var(--orange)">V3.7</span><small>สแกนสลิป EDC หลายใบ / กระทบยอด POS / ส่งออก Excel</small></div><div class="actionbar noPrint"><button class="btn primary" id="exportXlsx">บันทึก Excel</button><button class="btn good" id="shareXlsx">แชร์ Excel (มือถือ)</button><button class="btn" id="exportPdf">บันทึก PDF</button><button class="btn" id="exportJson">สำรอง JSON</button></div></div></header>
 <div id="lineBrowserHelp" class="lineHelp" hidden>
   <strong>⚠️ เปิดผ่าน LINE: อาจดาวน์โหลดไฟล์ Excel ไม่ได้</strong>
   <span>กดเมนู ⋮ ของ LINE แล้วเลือก <b>เปิดในเบราว์เซอร์อื่น</b> (Chrome หรือ Samsung Internet) หรือใช้ปุ่ม <b>แชร์ Excel (มือถือ)</b> ถ้าเครื่องรองรับการส่งไฟล์ <b>ข้อมูลที่สแกนใน LINE ไม่ย้ายไป Chrome อัตโนมัติ</b> ถ้ามีข้อมูลแล้ว ให้คัดลอกข้อมูลสำรองด้านล่างก่อนเปลี่ยนเบราว์เซอร์</span>
@@ -71,12 +82,13 @@
 
 <section class="panel" style="margin-top:16px"><div class="sectionrow"><div><h2>4. ทะเบียนรายการสลิป (แก้ไขข้อมูลได้)</h2><p class="hint">อ่านจากภาพเป็นสถานะ “ตรวจสอบ” ทุกบิล ต้องแก้จำนวนเงิน/วันที่/TRACE และเลือก “ยืนยัน” ก่อนนำไปลงยอดรายวันหรือ Excel • ไม่แสดงเลขบัตรเต็ม</p></div><div class="actionbar noPrint"><button class="btn" id="addRow">+ เพิ่มรายการ</button><button class="btn" id="showOcr">เปิด/ปิดข้อความ OCR</button></div></div>
 <div id="auditIssues" class="notice" style="margin:10px 0" role="status">ยังไม่มีข้อมูลตรวจสอบเพิ่มเติม</div>
+<div id="rowActionFeedback" class="notice" style="margin:10px 0;display:none" role="alert" aria-live="assertive"></div>
 <div class="tablewrap"><table class="tbl"><thead><tr><th>#</th><th>วัน / เวลา</th><th>ชนิดบัตร</th><th>TRACE</th><th>เลขบัตรปิดบัง</th><th>กลุ่ม</th><th>ผู้โอน/ถือบัตร</th><th>ธนาคารผู้ออก</th><th>ธนาคารรับ</th><th>ผู้รับ</th><th>จำนวนเงิน</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="tbody"></tbody></table></div>
 <div class="hint" style="margin-top:12px">ยอด Excel รายวันรวมเฉพาะรายการ “ยืนยัน” • รายการ “ตรวจสอบ” ยังอยู่ในชีตทะเบียนสลิป ไม่รวมยอดขาย • ไม่รวมรายงานสรุปและใบ Settlement ซ้ำ</div>
 </section>
 <section class="panel noPrint" style="margin-top:16px;display:none" id="ocrPanel"><h2>5. ข้อความ OCR และเหตุผลการคัดกรอง</h2><pre id="ocrDump" style="white-space:pre-wrap;word-wrap:break-word;color:#b8c9d6;font-size:.78rem;max-height:360px;overflow:auto"></pre></section>
 <section class="panel noPrint" style="margin-top:16px"><h2>วิธีใช้งานและข้อจำกัดสำคัญ</h2><div class="helpdetails"><p><strong>การสแกน:</strong> อัปโหลดรูป → กดสแกนเอกสารทั้งหมด → ตรวจแต่ละแถว → ปรับข้อมูลที่ OCR อ่านผิด → ใส่ยอด Settlement → ส่งออก Excel หรือ PDF หากกระดาษติดกันจนตัดผิด ให้ใช้ “เลือกกรอบในภาพ” สแกนแยก</p><p><strong>ไม่เดาข้อมูล:</strong> “KBank” บนเครื่องรับบัตรคือธนาคารผู้รับชำระ (Acquirer) ไม่ได้แปลว่าบัตรลูกค้าทุกใบออกโดย KBank และหมายเลข MID/TID ไม่ใช่เลขบัญชีธนาคารรับเงินจริง</p><p><strong>เลขบัตร:</strong> ระบบแสดงเฉพาะรูปแบบปิดบัง หาก OCR ได้เลขบัตรเต็มจะตัดให้เหลือ 4 หลักท้าย ห้ามเก็บ CVV หรือข้อมูลบัตรเต็ม</p><p><strong>ป้องกันยอดซ้ำ:</strong> ระบบรับเฉพาะบล็อก SALE/SALES ที่มีจำนวนเงินและหลักฐานธุรกรรม, พยายามจับ TRACE ซ้ำ และกันรายงานสรุป TOTAL/SETTLEMENT ออก แต่ภาพมุมเอียง/ไม่ชัดอาจต้องแก้เอง</p><p><strong>ข้อมูล:</strong> เก็บรายการไว้ใน localStorage ของเบราว์เซอร์เครื่องนั้นเท่านั้น การล้างข้อมูลเว็บอาจทำให้ข้อมูลหาย ควรสำรอง JSON หรือ Excel เป็นระยะ</p><p><strong>การเปิดใช้งาน:</strong> ตั้งชื่อไฟล์นี้เป็น index.html แล้วนำไปวางใน GitHub Pages repository เดิม เปิดผ่าน HTTPS เพื่อให้กล้องมือถือใช้งานได้ OCR ต้องเชื่อมอินเทอร์เน็ตตอนโหลดโมเดล</p></div></section>
-<div class="foot">AMZ Credit Audit V3.6 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ต้องตรวจคู่กับต้นฉบับหรือ Bank Statement • 0 และ 8 อ่านสลับกันได้</div>
+<div class="foot">AMZ Credit Audit V3.7 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ต้องตรวจคู่กับต้นฉบับหรือ Bank Statement • 0 และ 8 อ่านสลับกันได้</div>
 </main>
 <script>
 'use strict';
@@ -107,8 +119,27 @@ function criticalRecordIssues(r){
  const a=Number(r.amount);if(!Number.isFinite(a)||a<=0)issues.push('จำนวนเงินไม่ถูกต้อง');
  const src=String(r.source||'');
  if(/OCR ยอดไม่ตรง|OCR.*ต่าง|ยอดไม่ตรง 2 รอบ/i.test(src))issues.push('OCR สองรอบอ่านยอดต่างกัน');
+ if(/(?:\.jpe?g|\.png|\.webp)\b|OCR/i.test(src) && /\.(?:08|18|28|38|48|58|68|78|88|98)\b/.test(String(r.amount)))issues.push('จำนวนเงินลงท้ายเลข 8 ที่ OCR อาจอ่านผิด โปรดเทียบต้นฉบับ');
+ if(/⚠/.test(src))issues.push('มีคำเตือนจาก OCR ต้องตรวจภาพต้นฉบับ');
  if(/\.(?:jpe?g|png|webp)\b|OCR|กระดาษ\s*\d+/i.test(src)&&(!r.trace||!r.masked))issues.push('หลักฐาน OCR ขาด TRACE หรือเลขบัตรปิดบัง');
  return issues;
+}
+// V3.7: explain why a record cannot be confirmed instead of silently resetting the select.
+let rowFeedback=null;
+function requiredConfirmationErrors(r){
+ const problems=[];
+ const raw=String(r.date||'').trim();
+ if(!dayFromDate(raw)){
+  const m=raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})/);
+  const why=m&&Number(m[2])>12?' (เดือน '+m[2]+' เกิน 12)':m&&Number(m[1])>31?' (วันที่ '+m[1]+' เกิน 31)':'';
+  problems.push({field:'date',message:'วันที่ “'+(raw||'ว่าง')+'” ไม่ถูกต้อง'+why+' • ต้องตรวจจากภาพสลิป ห้ามใช้วันที่ OCR เดา'});
+ }
+ const a=Number(r.amount);
+ if(!Number.isFinite(a)||a<=0)problems.push({field:'amount',message:'จำนวนเงินต้องมากกว่า 0 และเป็นตัวเลขที่ตรวจจากต้นฉบับ'});
+ if(dayFromDate(raw) && dayFromDate(raw)!==dayKey()){
+  problems.push({field:'date',message:'วันที่ในสลิป '+raw+' ไม่ตรงกับวันที่กำลังตรวจ '+currentDayTitle()+' • เลือกวันให้ตรงก่อนยืนยัน'});
+ }
+ return problems;
 }
 function normalizeRecord(raw){
  const r={...blankRecord(),...raw};r.amount=Math.round((Number(r.amount)||0)*100)/100;
@@ -229,20 +260,75 @@ const badDates=records.filter(r=>!dayFromDate(r.date)).length;
 const inconsistent=records.filter(r=>criticalRecordIssues(r).length&&!r.manuallyReviewed).length;
 $('auditIssues').textContent=badDates||quarantined||inconsistent?`⚠ ตรวจสอบข้อมูลก่อนส่งออก: วันที่ไม่ถูกต้อง ${badDates} รายการ • รายการยืนยันเก่าที่คัดกลับเป็นรอตรวจ ${quarantined} • รายการหลักฐานยังไม่ครบ/ไม่สอดคล้อง ${inconsistent} • ห้ามใช้ยอดสแกนที่ไม่ผ่านตรวจเป็นยอดขาย`:'✓ ไม่พบวันที่ผิดหรือคำเตือน OCR ที่ยังไม่ได้ตรวจทาน (ยังต้องเทียบ Settlement ก่อนปิดยอด)';
 $('reconcileText').textContent=pending.length?`มี ${pending.length} รายการ OCR รอตรวจ (${money(pendingAmount)} บาท) — ยังไม่ใช้ยืนยันกระทบยอด Settlement`:(ref===null?'กรอกยอด Settlement จากรายงาน EDC เพื่อเทียบรายการยืนยัน':'ส่วนต่างจากรายการยืนยัน = '+money(total-ref)+' บาท'+(Math.abs(total-ref)<0.01?' • ตรงยอด Settlement':' • ไม่ตรง โปรดตรวจรายการซ้ำ/บิลขาด'));
-const body=$('tbody');body.replaceChildren();const fields=[['date','วันที่'],['time','เวลา'],['type','ชนิดบัตร'],['trace','TRACE'],['masked','เลขบัตรปิดบัง'],['group','กลุ่ม'],['sender','ผู้โอน/ถือบัตร'],['issuer','ธนาคารผู้ออก'],['acquirer','ธนาคารรับ'],['receiver','ผู้รับ'],['amount','จำนวนเงิน'],['status','สถานะ']];records.forEach((r,idx)=>{let tr=document.createElement('tr');if(r.status!=='ยืนยัน')tr.className='uncertain';let num=document.createElement('td');num.dataset.label='ลำดับ';num.textContent=(r.source||'').includes('⚠')?'⚠ ตรวจ # '+(idx+1):'# '+(idx+1);tr.append(num); for(const [field,label] of fields){let td=document.createElement('td');td.dataset.label=label;let el;if(field==='status'){el=document.createElement('select');for(const opt of ['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ']){const o=new Option(opt,opt,opt===r.status,opt===r.status);el.add(o);}}else{el=document.createElement('input');el.type=field==='amount'?'number':'text';if(field==='amount'){el.step='0.01';el.className='num';}el.value=r[field]??'';}el.setAttribute('aria-label',label+' รายการ '+(idx+1));el.addEventListener('change',()=>{
- const next=field==='amount'?(parseFloat(el.value)||0):field==='masked'?safeMask(el.value):el.value;
- if(field==='status'&&next==='ยืนยัน'){
-   const problems=criticalRecordIssues(r);
-   if(!dayFromDate(r.date)||!(Number(r.amount)>0)){
-     setStatus('ยืนยันไม่ได้: วันที่หรือจำนวนเงินผิด กรุณาแก้ไขให้ถูกต้องก่อน');render();return;
+const fbox=$('rowActionFeedback');
+if(rowFeedback){fbox.style.display='block';fbox.className='notice '+(rowFeedback.ok?'feedback-success':'feedback-error');fbox.textContent=rowFeedback.message;}
+else{fbox.style.display='none';fbox.textContent='';}
+const body=$('tbody');body.replaceChildren();const fields=[['date','วันที่'],['time','เวลา'],['type','ชนิดบัตร'],['trace','TRACE'],['masked','เลขบัตรปิดบัง'],['group','กลุ่ม'],['sender','ผู้โอน/ถือบัตร'],['issuer','ธนาคารผู้ออก'],['acquirer','ธนาคารรับ'],['receiver','ผู้รับ'],['amount','จำนวนเงิน'],['status','สถานะ']];records.forEach((r,idx)=>{
+ let tr=document.createElement('tr');
+ if(r.status!=='ยืนยัน')tr.classList.add('uncertain');
+ if(rowFeedback?.index===idx)tr.classList.add(rowFeedback.ok?'row-ok':'row-error');
+ let num=document.createElement('td');num.dataset.label='ลำดับ';
+ num.textContent=(r.source||'').includes('⚠')?'⚠ ตรวจ # '+(idx+1):'# '+(idx+1);
+ tr.append(num);
+ for(const [field,label] of fields){
+  let td=document.createElement('td');td.dataset.label=label;let el;
+  if(field==='status'){
+   el=document.createElement('select');
+   for(const opt of ['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ']){
+    el.add(new Option(opt,opt,opt===r.status,opt===r.status));
    }
-   if(problems.length&&!confirm('รายการนี้มีข้อควรตรวจสอบ: '+problems.join(' / ')+'\nยืนยันว่าตรวจเทียบสลิปต้นฉบับแล้วจริงหรือไม่?')){render();return;}
-   r.manuallyReviewed=true;r.importQuarantined=false;
+  }else{
+   el=document.createElement('input');el.type=field==='amount'?'number':'text';
+   if(field==='amount'){el.step='0.01';el.className='num';}
+   el.value=r[field]??'';
+  }
+  if(rowFeedback?.index===idx && rowFeedback.field===field)el.classList.add('field-error');
+  el.setAttribute('aria-label',label+' รายการ '+(idx+1));
+  el.addEventListener('change',()=>{
+   // Ignore events on controls removed by a prior table redraw.
+   if(!el.isConnected)return;
+   const next=field==='amount'?(el.value.trim()===''?0:Number(el.value)):field==='masked'?safeMask(el.value):el.value;
+   if(field==='status' && next==='ยืนยัน'){
+    const basic=requiredConfirmationErrors(r);
+    if(basic.length){
+     const main=basic[0];
+     rowFeedback={index:idx,ok:false,field:main.field,message:'❌ ยืนยันรายการ #'+(idx+1)+' ไม่ได้\n'+basic.map(x=>'• '+x.message).join('\n')+'\nกรุณาตรวจภาพสลิปจริงและแก้ข้อมูลในแถวนี้ แล้วเลือก “ยืนยัน” อีกครั้ง'};
+     setStatus(rowFeedback.message);setTimeout(render,0);return;
+    }
+    const issues=criticalRecordIssues(r);
+    if(issues.length && !confirm('รายการ #'+(idx+1)+' มีข้อควรตรวจ: '+issues.join(' / ')+'\nตรวจภาพสลิปจริง ทั้งวันที่ TRACE และจำนวนเงินแล้ว ใช่หรือไม่?')){
+      rowFeedback={index:idx,ok:false,field:'status',message:'⚠ ยังไม่ยืนยันรายการ #'+(idx+1)+' — โปรดเทียบต้นฉบับก่อน'};
+      setTimeout(render,0);return;
+    }
+    r.status='ยืนยัน';r.manuallyReviewed=true;r.importQuarantined=false;
+    rowFeedback={index:idx,ok:true,field:'',message:'✅ ยืนยันรายการ #'+(idx+1)+' เรียบร้อย: '+r.date+' • '+money(r.amount)+' บาท\nเพิ่มเข้ายอดรายวัน '+(dayFromDate(r.date)===dayKey()?'ของวันที่เลือกแล้ว':'ตามวันที่ในสลิป (ไม่ใช่วันที่กำลังเลือก)')};
+   }else if(field==='status'){
+    r.status=next;r.manuallyReviewed=false;
+    rowFeedback={index:idx,ok:next==='ซ้ำ-ไม่นับ',field:'',message:next==='ซ้ำ-ไม่นับ'?'☑ ทำเครื่องหมายซ้ำ-ไม่นับ สำหรับรายการ #'+(idx+1):'↩ เปลี่ยนรายการ #'+(idx+1)+' เป็นรอตรวจสอบแล้ว'};
+   }else{
+    const before=r[field];
+    if(Object.is(before,next))return;
+    r[field]=next;
+    if(field==='type')r.group=groupOf(r.type);
+    if(r.status==='ยืนยัน' && !Object.is(before,next)){
+      r.status='ตรวจสอบ';r.manuallyReviewed=false;
+      rowFeedback={index:idx,ok:false,field:'status',message:'⚠ รายการ #'+(idx+1)+' เปลี่ยนข้อมูลหลังยืนยัน จึงเปลี่ยนกลับเป็น “ตรวจสอบ” เพื่อให้ยืนยันใหม่'};
+    }else{
+      rowFeedback={index:idx,ok:true,field:'',message:'💾 บันทึกข้อมูล '+label+' ของรายการ #'+(idx+1)+' แล้ว'+(dayFromDate(r.date)?'':' • แต่วันที่ยังไม่ถูกต้อง')};
+    }
+   }
+   save();
+   setTimeout(()=>{renderDailyInputs();render()},0);
+  });
+  td.append(el);
+  if(rowFeedback?.index===idx&&rowFeedback.field===field){let tip=document.createElement('small');tip.className='row-hint';tip.textContent='กรุณาแก้ช่องนี้จากสลิปจริง';td.append(tip)}
+  tr.append(td);
  }
- r[field]=next;if(field==='type')r.group=groupOf(r.type);
- if(field!=='status'&&r.status==='ยืนยัน'&&criticalRecordIssues(r).length)r.manuallyReviewed=false;
- save();renderDailyInputs();render();
-});td.append(el);tr.append(td);}let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);save();renderDailyInputs();render()}});td.append(b);tr.append(td);body.append(tr);});$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');updateDailySummary();}
+ let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';
+ b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);rowFeedback=null;save();renderDailyInputs();render()}});
+ td.append(b);tr.append(td);body.append(tr);
+});
+$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');updateDailySummary();}
 function dateFromContext(s){const m=String(s).match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/);if(!m)return '';let y=Number(m[3]);if(y>=2400)y-=543;else if(y<100)y=y>=80?1900+y:2000+y;const result=`${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${y}`;return dayFromDate(result)?result:'';}
 function extractCard(s){const m=String(s).match(/\b\d{4}\s+\d{2}[Xx*]{2}\s+[Xx*]{3,6}\s+\d{4}\b/);if(m)return safeMask(m[0]);const m2=String(s).match(/\b(?:\d{4}[ \-]*){3}\d{4}\b/);return m2?safeMask(m2[0]):'';}
 // V3.6: interpret sale *rows* rather than extracting any number near a SALE keyword.
@@ -507,7 +593,7 @@ $('scanCrop').addEventListener('click',async()=>{if(!cropBox||cropBox.w<50||crop
 $('slipFiles').addEventListener('change',async e=>{await loadFiles(e.target.files);e.target.value='';});$('cameraFiles').addEventListener('change',async e=>{await loadFiles(e.target.files);e.target.value='';});$('cameraBtn').addEventListener('click',()=>$('cameraFiles').click());$('folderBtn').addEventListener('click',()=>$('folderFiles').click());$('folderFiles').addEventListener('change',async e=>{await loadFiles(e.target.files);e.target.value='';});$('manualCrop').addEventListener('click',cropCanvasLoad);$('nextCropImage').addEventListener('click',()=>{if(!images.length){setStatus('กรุณาเลือกภาพก่อน');return;}cropImageIndex=(cropImageIndex+1)%images.length;cropCanvasLoad()});$('cancelCrop').addEventListener('click',()=>$('cropBox').classList.remove('active'));$('scanAll').addEventListener('click',scanImages);
 for(const id of ['settlementInput','qrInput','posInput'])$(id).addEventListener('input',()=>{save();render()});$('loadExample').addEventListener('click',()=>{const data=examples.map(([time,type,masked,trace,amount])=>({...blankRecord(),date:'28/10/2026',time,type,masked,trace,group:groupOf(type),amount,source:'ตัวอย่างตรวจแล้ว: Detail Report 28/10/2569',status:'ยืนยัน'}));const result=addRecords(data);$('settlementInput').value='1065';$('qrInput').value='14828';$('posInput').value='25237';selectedMonth='2026-10';selectedDay=28;$('reportMonth').value=selectedMonth;$('reportDay').value='28';save();renderDailyInputs();render();setStatus(`โหลดตัวอย่าง 10 บิล • เพิ่ม ${result.added} / ซ้ำ ${result.dup} • กรอกยอด Settlement 1,065 บาทแล้ว`);});
 $('addRow').addEventListener('click',()=>{records.push(blankRecord());save();render();});
-$('clearPending').addEventListener('click',()=>{const n=records.filter(r=>r.status==='ตรวจสอบ').length;if(!n){setStatus('ไม่มี OCR รอตรวจสอบ');return;}if(confirm(`ลบเฉพาะ ${n} รายการที่ยังไม่ยืนยัน? รายการยืนยันแล้วจะคงไว้`)){records=records.filter(r=>r.status!=='ตรวจสอบ');save();renderDailyInputs();render();setStatus('ล้างรายการ OCR ที่ยังไม่ยืนยัน '+n+' รายการแล้ว');}});$('clearData').addEventListener('click',()=>{if(confirm('ลบข้อมูลสลิปและยอดอ้างอิงทั้งหมดในเบราว์เซอร์เครื่องนี้ใช่หรือไม่?')){records=[];images=[];cropImageIndex=0;ocrLog=[];renderSelectedFiles();$('settlementInput').value='';$('qrInput').value='';$('posInput').value='';dailyInputs={};dayRefs={};save();renderDailyInputs();render();setStatus('ล้างข้อมูลเรียบร้อย');}});$('showOcr').addEventListener('click',()=>{$('ocrPanel').style.display=$('ocrPanel').style.display==='none'?'block':'none'});
+$('clearPending').addEventListener('click',()=>{const n=records.filter(r=>r.status==='ตรวจสอบ').length;if(!n){setStatus('ไม่มี OCR รอตรวจสอบ');return;}if(confirm(`ลบเฉพาะ ${n} รายการที่ยังไม่ยืนยัน? รายการยืนยันแล้วจะคงไว้`)){records=records.filter(r=>r.status!=='ตรวจสอบ');rowFeedback=null;save();renderDailyInputs();render();setStatus('ล้างรายการ OCR ที่ยังไม่ยืนยัน '+n+' รายการแล้ว');}});$('clearData').addEventListener('click',()=>{if(confirm('ลบข้อมูลสลิปและยอดอ้างอิงทั้งหมดในเบราว์เซอร์เครื่องนี้ใช่หรือไม่?')){records=[];rowFeedback=null;images=[];cropImageIndex=0;ocrLog=[];renderSelectedFiles();$('settlementInput').value='';$('qrInput').value='';$('posInput').value='';dailyInputs={};dayRefs={};save();renderDailyInputs();render();setStatus('ล้างข้อมูลเรียบร้อย');}});$('showOcr').addEventListener('click',()=>{$('ocrPanel').style.display=$('ocrPanel').style.display==='none'?'block':'none'});
 const XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 function downloadBlob(content,name,mime){const b=content instanceof Blob?content:new Blob([content],{type:mime});const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.target='_blank';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);}
 function externalBrowserHelp(message){$('lineBrowserHelp').hidden=false;setStatus((message?message+'\n':'')+'LINE อาจบล็อกดาวน์โหลด: กด ⋮ แล้วเลือก เปิดในเบราว์เซอร์ภายนอก (Chrome/Samsung Internet)');$('lineBrowserHelp').scrollIntoView({behavior:'smooth',block:'start'});}
@@ -643,6 +729,7 @@ const hs=XLSX.utils.aoa_to_sheet(help);hs['!cols']=[{wch:32},{wch:107}];XLSX.uti
 wb.Workbook={...(wb.Workbook||{}),CalcPr:{fullCalcOnLoad:true}};
 return deliverExcel(wb,`AMZ_ตรวจสอบยอดรายวัน_${ym}_1-31.xlsx`,preferShare);
 }
+
 if(isLineBrowser()){$('lineBrowserHelp').hidden=false;}
 $('copyPageLink').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);setStatus('คัดลอกลิงก์แล้ว: เปิด Chrome หรือ Samsung Internet แล้ววางลิงก์เพื่อ Export');}catch(e){prompt('คัดลอกลิงก์นี้ไปเปิดใน Chrome / Samsung Internet',location.href);}});
 $('exportXlsx').addEventListener('click',()=>exportExcel(false));$('shareXlsx').addEventListener('click',()=>exportExcel(true));$('exportPdf').addEventListener('click',()=>{if(isLineBrowser()){externalBrowserHelp('บันทึก PDF ผ่านเบราว์เซอร์ LINE อาจใช้งานไม่ได้');return;}window.print();});restore();

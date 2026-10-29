@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสแกนสลิปและบัตรเครดิต - Café Amazon</title>
+    <title>ระบบสแกนสลิปยาวและบัตรเครดิต - Café Amazon</title>
     <!-- Tailwind CSS for Responsive UI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -24,8 +24,8 @@
             <div class="flex items-center space-x-3">
                 <i data-lucide="receipt" class="w-8 h-8"></i>
                 <div>
-                    <h1 class="text-xl font-bold">Slip & Credit Card Scanner</h1>
-                    <p class="text-xs text-emerald-200">Café Amazon - ระบบตรวจสอบและบันทึกข้อมูลอัตโนมัติ</p>
+                    <h1 class="text-xl font-bold">Slip & Credit Card Smart Scanner</h1>
+                    <p class="text-xs text-emerald-200">Café Amazon - ระบบสแกนสลิปม้วนยาวอัตโนมัติ</p>
                 </div>
             </div>
             <button onclick="exportToExcel()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold px-5 py-2.5 rounded-lg shadow transition flex items-center gap-2">
@@ -40,13 +40,13 @@
         <!-- Upload & Summary Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Upload Box (Supports Multiple Files) -->
+            <!-- Upload Box -->
             <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-2">
-                        <i data-lucide="upload-cloud" class="text-emerald-600"></i> อัปโหลดหรือสแกนสลิปหลายใบพร้อมกัน
+                        <i data-lucide="scan-line" class="text-emerald-600"></i> อัปโหลดสลิปยาว / สลิปม้วน (Smart Parser)
                     </h2>
-                    <p class="text-sm text-slate-500 mb-4">เลือกไฟล์รูปภาพสลิปหลายๆ ใบ หรือเปิดกล้องถ่ายภาพ (ระบบรองรับการประมวลผลหลายรูปพร้อมกันเพื่อลดเวลาทำงาน)</p>
+                    <p class="text-sm text-slate-500 mb-4">ระบบอัจฉริยะจะทำการกวาดหาตัวเลขราคาและรายการทั้งหมดในภาพยาวภาพเดียว แล้วแตกออกเป็นตารางหลายแถวให้อัตโนมัติ</p>
                 </div>
 
                 <label for="slipInput" class="border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/50 hover:bg-emerald-50 rounded-xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3">
@@ -54,15 +54,15 @@
                         <i data-lucide="camera" class="w-8 h-8"></i>
                     </div>
                     <div>
-                        <span class="text-emerald-800 font-bold text-base block">คลิกเพื่อเลือกรูปภาพสลิป (เลือกได้หลายไฟล์พร้อมกัน)</span>
-                        <span class="text-xs text-slate-400">PNG, JPG, JPEG (รองรับการเลือกทีละหลายสิบใบ)</span>
+                        <span class="text-emerald-800 font-bold text-base block">คลิกเพื่อเลือกภาพสลิปยาว หรือถ่ายภาพ</span>
+                        <span class="text-xs text-slate-400">รองรับภาพสลิปม้วนยาวหลายรายการในภาพเดียว</span>
                     </div>
-                    <input type="file" id="slipInput" accept="image/*" multiple class="hidden" onchange="handleMultipleUpload(event)">
+                    <input type="file" id="slipInput" accept="image/*" multiple class="hidden" onchange="handleSmartUpload(event)">
                 </label>
 
                 <!-- Loading Status Bar -->
                 <div id="loadingStatus" class="hidden mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between text-blue-800 text-sm">
-                    <span id="loadingText" class="flex items-center gap-2 font-medium">กำลังประมวลผลสลิป...</span>
+                    <span id="loadingText" class="flex items-center gap-2 font-medium">กำลังกวาดข้อมูลสลิปยาว...</span>
                     <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-700"></div>
                 </div>
             </div>
@@ -103,7 +103,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="table" class="w-5 h-5 text-emerald-600"></i> ตารางข้อมูลสลิปบัตรเครดิตและยอดขาย (โครงสร้างเดียวกับ Excel)
+                    <i data-lucide="table" class="w-5 h-5 text-emerald-600"></i> ตารางข้อมูลสลิป (โครงสร้างเดียวกับ Excel)
                 </h3>
                 <button onclick="addNewRow()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1">
                     <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มรายการ
@@ -146,7 +146,6 @@
         lucide.createIcons();
         let slipData = [];
 
-        // Load Sample Data (10 transactions matching EDC slips)
         function loadSampleData() {
             slipData = [
                 { date: "28/10/2569 06:39", desc: "Sale (Blue Credit)", bankFrom: "KBank", accNo: "4417 70** **** 4609", bankTo: "KBank", sender: "ลูกค้าบัตรเครดิต", receiver: "Cafe Amazon", amount: 140.00 },
@@ -163,8 +162,8 @@
             renderTable();
         }
 
-        // Handle Multiple Files Upload & OCR Processing
-        async function handleMultipleUpload(event) {
+        // Smart Multi-Line Parser for Long Slips
+        async function handleSmartUpload(event) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
 
@@ -174,7 +173,7 @@
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                loadingText.innerHTML = `กำลังประมวลผลไฟล์ที่ ${i + 1} จาก ${files.length} (${file.name})...`;
+                loadingText.innerHTML = `กำลังสแกนสลิปยาวไฟล์ที่ ${i + 1} จาก ${files.length}...`;
 
                 try {
                     const worker = await Tesseract.createWorker('eng+tha');
@@ -182,8 +181,8 @@
                     const text = ret.data.text;
                     await worker.terminate();
 
-                    // Parse OCR text for amount and card info
-                    parseSlipText(text);
+                    // Parse long text by splitting lines and extracting all prices/amounts
+                    parseLongSlipText(text);
                 } catch (err) {
                     console.error("OCR Error:", err);
                 }
@@ -191,39 +190,39 @@
 
             loadingStatus.classList.add('hidden');
             renderTable();
-            event.target.value = ''; // Reset input
+            event.target.value = '';
         }
 
-        // Simple text parser for slips
-        function parseSlipText(text) {
-            let amount = 0.00;
-            let cardNo = "XXXX XXXX XXXX";
-            let bank = "KBank";
+        function parseLongSlipText(text) {
+            const lines = text.split('\n');
+            let currentCard = "XXXX XXXX XXXX";
 
-            // Find amount pattern (e.g. THB 140.00, 140.00 THB)
-            const amountMatch = text.match(/(?:THB)?\s*([0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{2})\s*(?:THB)?/i);
-            if (amountMatch) {
-                amount = parseFloat(amountMatch[1].replace(/,/g, ''));
-            }
+            lines.forEach(line => {
+                // Look for card number in line
+                const cardMatch = line.match(/([0-9]{4}\s*[0-9*]{2,4}\s*[0-9*]{2,4}\s*[0-9]{4})/);
+                if (cardMatch) {
+                    currentCard = cardMatch[1];
+                }
 
-            // Find card number pattern
-            const cardMatch = text.match(/([0-9]{4}\s*[0-9*]{2,4}\s*[0-9*]{2,4}\s*[0-9]{4})/);
-            if (cardMatch) {
-                cardNo = cardMatch[1];
-            }
-
-            if (amount > 0) {
-                slipData.push({
-                    date: new Date().toLocaleDateString('th-TH') + " " + new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}),
-                    desc: "Sale (Scanned Slip)",
-                    bankFrom: bank,
-                    accNo: cardNo,
-                    bankTo: "KBank",
-                    sender: "ผู้ถือบัตรเครดิต",
-                    receiver: "Cafe Amazon",
-                    amount: amount
-                });
-            }
+                // Look for amount patterns (e.g. 140.00, THB 140.00, 140.00 THB)
+                const amountMatches = line.matchAll(/(?:THB)?\s*([0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{2})\s*(?:THB)?/gi);
+                for (const match of amountMatches) {
+                    const amount = parseFloat(match[1].replace(/,/g, ''));
+                    // Filter out unrealistic amounts (too high or 0)
+                    if (amount > 0 && amount < 50000) {
+                        slipData.push({
+                            date: new Date().toLocaleDateString('th-TH') + " " + new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}),
+                            desc: line.toLowerCase().includes('master') ? "Sale (MasterCard)" : (line.toLowerCase().includes('visa') ? "Sale (VISA)" : "Sale (EDC Long Slip)"),
+                            bankFrom: "KBank",
+                            accNo: currentCard,
+                            bankTo: "KBank",
+                            sender: "ลูกค้าบัตรเครดิต",
+                            receiver: "Cafe Amazon",
+                            amount: amount
+                        });
+                    }
+                }
+            });
         }
 
         function addNewRow() {
@@ -288,7 +287,6 @@
             renderTable();
         }
 
-        // Export to Real Excel (.xlsx) with formulas
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
             const wsData = [
@@ -301,16 +299,14 @@
                 wsData.push([item.date, item.desc, item.bankFrom, item.accNo, item.bankTo, item.sender, item.receiver, item.amount]);
             });
 
-            // Add SUM formula at the end
             const lastRow = wsData.length + 1;
             wsData.push(["รวมทั้งสิ้น", "", "", "", "", "", "", `=SUM(H4:H${lastRow-1})`]);
 
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             XLSX.utils.book_append_sheet(wb, ws, "สรุปยอดสลิป");
-            XLSX.writeFile(wb, "สรุปยอดสลิปและบัตรเครดิต_" + new Date().toISOString().slice(0,10) + ".xlsx");
+            XLSX.writeFile(wb, "รายงานตรวจสอบยอดบัตรเครดิต_AMZ.xlsx");
         }
 
-        // Initialize with sample data on load
         window.onload = () => {
             loadSampleData();
         };

@@ -37,7 +37,7 @@
 <div class="notice">ระบบนี้อ่านด้วย OCR บนอุปกรณ์ของคุณ ไม่อัปโหลดภาพไปยังเซิร์ฟเวอร์ของแอพ แต่ต้องดาวน์โหลดไลบรารี OCR และโมเดลภาษาจากผู้ให้บริการ CDN เมื่อออนไลน์ <strong>ข้อมูล OCR เป็นข้อมูลรอตรวจสอบ</strong> ต้องยืนยันก่อนนำเข้ายอดรายวัน และอาจอ่าน 118.00 เป็น 118.60 ได้ และไม่ควรเก็บเลขบัตรเต็มในแอพ</div>
 <div class="stats"><div class="stat"><div class="lbl">OCR แยกได้ (รวมรอตรวจ)</div><strong id="statCount">0</strong><span class="unit">รายการ (ไม่รวมสรุปซ้ำ)</span></div><div class="stat"><div class="lbl">ยอด EDC ยืนยันแล้ว</div><strong id="statTotal">0.00</strong><span class="unit">บาท • ไม่นำ OCR ที่ยังไม่ตรวจลงยอดรายวัน</span></div><div class="stat"><div class="lbl">รายการรอตรวจสอบ</div><strong id="statReview">0</strong><span class="unit" id="pendingOCRTotal">ยอด OCR รอตรวจ 0.00 บาท</span></div><div class="stat"><div class="lbl">ส่วนต่าง Settlement</div><strong id="statDiff">—</strong><span class="unit">แสดงเมื่อไม่มี OCR รอตรวจ</span></div></div>
 <div class="gridtop">
-<section class="panel noPrint"><h2>1. อัปโหลดภาพ / เปิดกล้อง</h2><p class="hint">รองรับภาพหลายใบในรูปเดียว, สลิปยาวต่อกันหลายรายการ, สแกนจากมือถือและคอมพิวเตอร์ มีระบบค้นหาบริเวณกระดาษอัตโนมัติ และเครื่องมือเลือกกรอบเองเมื่อภาพซับซ้อน</p>
+<section class="panel noPrint"><h2>1. อัปโหลดภาพ / เปิดกล้อง</h2><p class="hint">รองรับสลิปหลายใบในภาพเดียว • เมื่อพบม้วน DETAIL REPORT ยาว ระบบจะอ่านม้วนนั้นเป็นหลัก และไม่บวกใบ Settlement กับใบสำเนาด้านข้างซ้ำ • หากข้อความเล็กเกินไปควรถ่ายใกล้ขึ้น ให้ความกว้างม้วนอย่างน้อย 600 พิกเซล</p>
 <label class="drop" for="slipFiles"><strong>📷 เลือกรูปจากเครื่อง (ได้หลายภาพ)</strong><small>JPG, PNG, WEBP • เลือกภาพถ่ายรวมกระดาษได้</small></label><input class="filehidden" type="file" accept="image/*" multiple id="slipFiles">
 <div class="toolbar"><button class="btn good" id="cameraBtn">📸 เปิดกล้อง</button><button class="btn" id="folderBtn">📁 เลือกโฟลเดอร์รูป (PC)</button><input class="filehidden" id="folderFiles" type="file" webkitdirectory directory multiple accept="image/*"><input class="filehidden" type="file" accept="image/*" capture="environment" id="cameraFiles"><button class="btn" id="manualCrop">✂ เลือกกรอบในภาพ</button><button class="btn" id="nextCropImage">รูปถัดไปสำหรับเลือกกรอบ</button><button class="btn" id="scanAll">🔎 สแกนเอกสารทั้งหมด</button></div>
 <div id="fileList"></div>
@@ -45,7 +45,7 @@
 <label class="tiny" style="display:flex;align-items:center;gap:7px;margin:8px 0"><input type="checkbox" id="verifyOcr" checked> สแกนซ้ำเพิ่มคอนทราสต์สำหรับสลิปสั้น เพื่อตรวจหายอดที่ OCR อ่านไม่ตรงกัน (ใช้เวลามากขึ้น)</label>
 <div id="pasteArea" hidden class="notice" style="margin:8px 0"><label for="backupText">วางข้อความ JSON ที่คัดลอกมาจาก LINE หรือ Chrome</label><textarea id="backupText" rows="5" style="display:block;width:100%;margin:8px 0;background:#151c22;color:#fff;border:1px solid #8797a6;border-radius:7px;padding:8px" placeholder="วาง JSON ที่นี่"></textarea><button class="btn good" id="applyBackup">นำเข้าข้อมูล</button></div>
 <div class="progress"><span id="bar"></span></div><div id="status" class="status" role="status">ยังไม่มีไฟล์สแกน • สามารถกดโหลดข้อมูลตัวอย่างที่อ่านยืนยันจากภาพได้</div>
-<div class="toolbar"><button class="btn" id="loadExample">โหลดตัวอย่างตรวจสอบแล้ว (10 บิล)</button><button class="btn" id="importJsonBtn">นำเข้า JSON</button><input type="file" accept=".json,application/json" id="jsonFile" class="filehidden"><button class="btn" id="copyBackup">คัดลอกข้อมูลสำรอง</button><button class="btn" id="pasteBackup">วางข้อมูลสำรอง</button><button class="btn danger" id="clearData">ล้างข้อมูลทั้งหมด</button></div>
+<div class="toolbar"><button class="btn" id="loadExample">นำเข้ารายการจริงจากภาพ 28/10/2569 (10 บิล)</button><button class="btn" id="importJsonBtn">นำเข้า JSON</button><input type="file" accept=".json,application/json" id="jsonFile" class="filehidden"><button class="btn" id="copyBackup">คัดลอกข้อมูลสำรอง</button><button class="btn" id="pasteBackup">วางข้อมูลสำรอง</button><button class="btn danger" id="clearPending">ล้างเฉพาะ OCR ที่ยังไม่ยืนยัน</button><button class="btn danger" id="clearData">ล้างข้อมูลทั้งหมด</button></div>
 </section>
 <section class="panel"><h2>2. กระทบยอดอ้างอิง</h2><div class="hint">ยอดอ้างอิงจากใบ Settlement หรือ POS เป็นคนละระดับกับยอดรายธุรกรรมและไม่ควรนำมาบวกซ้ำ</div>
 <div class="summarygrid" style="margin-top:13px"><div>ยอด EDC สแกน <b id="edcScan">0.00</b></div><div>ยอด EDC Settlement <b id="edcRefLabel">ยังไม่กรอก</b></div><div>ยอด QR API อ้างอิง <b id="qrRefLabel">ยังไม่กรอก</b></div><div>ยอด POS Grand Total <b id="posRefLabel">ยังไม่กรอก</b></div></div>
@@ -71,7 +71,7 @@
 </section>
 <section class="panel noPrint" style="margin-top:16px;display:none" id="ocrPanel"><h2>5. ข้อความ OCR และเหตุผลการคัดกรอง</h2><pre id="ocrDump" style="white-space:pre-wrap;word-wrap:break-word;color:#b8c9d6;font-size:.78rem;max-height:360px;overflow:auto"></pre></section>
 <section class="panel noPrint" style="margin-top:16px"><h2>วิธีใช้งานและข้อจำกัดสำคัญ</h2><div class="helpdetails"><p><strong>การสแกน:</strong> อัปโหลดรูป → กดสแกนเอกสารทั้งหมด → ตรวจแต่ละแถว → ปรับข้อมูลที่ OCR อ่านผิด → ใส่ยอด Settlement → ส่งออก Excel หรือ PDF หากกระดาษติดกันจนตัดผิด ให้ใช้ “เลือกกรอบในภาพ” สแกนแยก</p><p><strong>ไม่เดาข้อมูล:</strong> “KBank” บนเครื่องรับบัตรคือธนาคารผู้รับชำระ (Acquirer) ไม่ได้แปลว่าบัตรลูกค้าทุกใบออกโดย KBank และหมายเลข MID/TID ไม่ใช่เลขบัญชีธนาคารรับเงินจริง</p><p><strong>เลขบัตร:</strong> ระบบแสดงเฉพาะรูปแบบปิดบัง หาก OCR ได้เลขบัตรเต็มจะตัดให้เหลือ 4 หลักท้าย ห้ามเก็บ CVV หรือข้อมูลบัตรเต็ม</p><p><strong>ป้องกันยอดซ้ำ:</strong> ระบบรับเฉพาะบล็อก SALE/SALES ที่มีจำนวนเงินและหลักฐานธุรกรรม, พยายามจับ TRACE ซ้ำ และกันรายงานสรุป TOTAL/SETTLEMENT ออก แต่ภาพมุมเอียง/ไม่ชัดอาจต้องแก้เอง</p><p><strong>ข้อมูล:</strong> เก็บรายการไว้ใน localStorage ของเบราว์เซอร์เครื่องนั้นเท่านั้น การล้างข้อมูลเว็บอาจทำให้ข้อมูลหาย ควรสำรอง JSON หรือ Excel เป็นระยะ</p><p><strong>การเปิดใช้งาน:</strong> ตั้งชื่อไฟล์นี้เป็น index.html แล้วนำไปวางใน GitHub Pages repository เดิม เปิดผ่าน HTTPS เพื่อให้กล้องมือถือใช้งานได้ OCR ต้องเชื่อมอินเทอร์เน็ตตอนโหลดโมเดล</p></div></section>
-<div class="foot">AMZ Credit Audit V3.0 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
+<div class="foot">AMZ Credit Audit V3.2 • มีการตรวจยอดจากภาพถ่ายผู้ใช้งาน • OCR ไม่ทดแทนการตรวจเอกสารต้นฉบับหรือ Bank Statement</div>
 </main>
 <script>
 'use strict';
@@ -97,7 +97,7 @@ function blankRecord(){return {date:'',time:'',type:'ไม่ทราบ',trac
 function safeMask(s){let x=String(s||'').trim(); if(!x)return '';const digits=x.replace(/\D/g,'');if(digits.length>=12&&!x.includes('*')&&!x.includes('X'))return '**** **** **** '+digits.slice(-4);return x.replace(/\b\d{12,19}\b/g,m=>'**** **** **** '+m.slice(-4));}
 function normalizeRecord(raw){const r={...blankRecord(),...raw};r.amount=Math.round((Number(r.amount)||0)*100)/100;r.masked=safeMask(r.masked);r.trace=String(r.trace||'').replace(/[^0-9A-Za-z]/g,'').slice(0,24);r.status=['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ'].includes(r.status)?r.status:'ตรวจสอบ';return r;}
 function uniqueId(r){return r.trace && r.date ? `${r.date}|${r.trace}` : ''}
-function addRecords(newRecords){let added=0,dup=0;for(const x of newRecords){const r=normalizeRecord(x);if(!(r.amount>0))continue;const key=uniqueId(r);const prior=records.find(z=>(key&&uniqueId(z)===key)||(r.trace&&z.trace===r.trace&&r.amount===z.amount&&(!r.date||!z.date||r.date===z.date))||(r.masked&&z.masked===r.masked&&r.date&&z.date===r.date&&r.time&&z.time===r.time&&r.amount===z.amount));if(prior){dup++; if((prior.masked||'').length<(r.masked||'').length) Object.assign(prior,{masked:r.masked,type:r.type,group:r.group});continue;}records.push(r);added++;}save();renderDailyInputs();render();return {added,dup};}
+function addRecords(newRecords){let added=0,dup=0;for(const x of newRecords){const r=normalizeRecord(x);if(!(r.amount>0))continue;const key=uniqueId(r);const prior=records.find(z=>(key&&uniqueId(z)===key)||(r.trace&&z.trace===r.trace&&r.amount===z.amount&&(!r.date||!z.date||r.date===z.date))||(r.masked&&z.masked===r.masked&&r.date&&z.date===r.date&&r.time&&z.time===r.time&&r.amount===z.amount));if(prior){dup++; if(Math.abs((Number(prior.amount)||0)-r.amount)>0.009 && prior.status!=='ยืนยัน'&&!String(prior.source).includes('OCR ยอดต่าง'))prior.source+=' | ⚠ OCR ยอดต่างจากรายการซ้ำ '+r.amount.toFixed(2)+' บาท'; if((prior.masked||'').length<(r.masked||'').length) Object.assign(prior,{masked:r.masked,type:r.type,group:r.group});continue;}records.push(r);added++;}save();renderDailyInputs();render();return {added,dup};}
 
 // === V3: multi-day POS ledger. Blank and zero have different meanings. ===
 const AMZ_LAYOUT={
@@ -198,15 +198,16 @@ $('edcRefLabel').textContent=ref===null?'ยังไม่กรอก':money(r
 $('qrRefLabel').textContent=$('qrInput').value?money($('qrInput').value):'ยังไม่กรอก';
 $('posRefLabel').textContent=$('posInput').value?money($('posInput').value):'ยังไม่กรอก';
 $('reconcileText').textContent=pending.length?`มี ${pending.length} รายการ OCR รอตรวจ (${money(pendingAmount)} บาท) — ยังไม่ใช้ยืนยันกระทบยอด Settlement`:(ref===null?'กรอกยอด Settlement จากรายงาน EDC เพื่อเทียบรายการยืนยัน':'ส่วนต่างจากรายการยืนยัน = '+money(total-ref)+' บาท'+(Math.abs(total-ref)<0.01?' • ตรงยอด Settlement':' • ไม่ตรง โปรดตรวจรายการซ้ำ/บิลขาด'));
-const body=$('tbody');body.replaceChildren();const fields=[['date','วันที่'],['time','เวลา'],['type','ชนิดบัตร'],['trace','TRACE'],['masked','เลขบัตรปิดบัง'],['group','กลุ่ม'],['sender','ผู้โอน/ถือบัตร'],['issuer','ธนาคารผู้ออก'],['acquirer','ธนาคารรับ'],['receiver','ผู้รับ'],['amount','จำนวนเงิน'],['status','สถานะ']];records.forEach((r,idx)=>{let tr=document.createElement('tr');if(r.status!=='ยืนยัน')tr.className='uncertain';let num=document.createElement('td');num.dataset.label='ลำดับ';num.textContent=(r.source||'').includes('OCR ยอดไม่ตรง')?'⚠ OCR ไม่ตรง # '+(idx+1):'# '+(idx+1);tr.append(num); for(const [field,label] of fields){let td=document.createElement('td');td.dataset.label=label;let el;if(field==='status'){el=document.createElement('select');for(const opt of ['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ']){const o=new Option(opt,opt,opt===r.status,opt===r.status);el.add(o);}}else{el=document.createElement('input');el.type=field==='amount'?'number':'text';if(field==='amount'){el.step='0.01';el.className='num';}el.value=r[field]??'';}el.setAttribute('aria-label',label+' รายการ '+(idx+1));el.addEventListener('change',()=>{r[field]=field==='amount'?(parseFloat(el.value)||0):field==='masked'?safeMask(el.value):el.value;if(field==='type')r.group=groupOf(r.type);save();renderDailyInputs();render();});td.append(el);tr.append(td);}let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);save();renderDailyInputs();render()}});td.append(b);tr.append(td);body.append(tr);});$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');updateDailySummary();}
+const body=$('tbody');body.replaceChildren();const fields=[['date','วันที่'],['time','เวลา'],['type','ชนิดบัตร'],['trace','TRACE'],['masked','เลขบัตรปิดบัง'],['group','กลุ่ม'],['sender','ผู้โอน/ถือบัตร'],['issuer','ธนาคารผู้ออก'],['acquirer','ธนาคารรับ'],['receiver','ผู้รับ'],['amount','จำนวนเงิน'],['status','สถานะ']];records.forEach((r,idx)=>{let tr=document.createElement('tr');if(r.status!=='ยืนยัน')tr.className='uncertain';let num=document.createElement('td');num.dataset.label='ลำดับ';num.textContent=(r.source||'').includes('⚠')?'⚠ ตรวจ # '+(idx+1):'# '+(idx+1);tr.append(num); for(const [field,label] of fields){let td=document.createElement('td');td.dataset.label=label;let el;if(field==='status'){el=document.createElement('select');for(const opt of ['ตรวจสอบ','ยืนยัน','ซ้ำ-ไม่นับ']){const o=new Option(opt,opt,opt===r.status,opt===r.status);el.add(o);}}else{el=document.createElement('input');el.type=field==='amount'?'number':'text';if(field==='amount'){el.step='0.01';el.className='num';}el.value=r[field]??'';}el.setAttribute('aria-label',label+' รายการ '+(idx+1));el.addEventListener('change',()=>{r[field]=field==='amount'?(parseFloat(el.value)||0):field==='masked'?safeMask(el.value):el.value;if(field==='type')r.group=groupOf(r.type);save();renderDailyInputs();render();});td.append(el);tr.append(td);}let td=document.createElement('td');td.dataset.label='จัดการ';let b=document.createElement('button');b.className='btn danger noPrint';b.textContent='ลบ';b.addEventListener('click',()=>{if(confirm('ลบรายการนี้จริงหรือไม่?')){records.splice(idx,1);save();renderDailyInputs();render()}});td.append(b);tr.append(td);body.append(tr);});$('ocrDump').textContent=ocrLog.join('\n\n--------------------\n\n');updateDailySummary();}
 function dateFromContext(s){const m=String(s).match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/);if(!m)return '';let y=Number(m[3]);if(y>=2400)y-=543;else if(y<100)y=y>=80?1900+y:2000+y;return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${y}`;}
 function extractCard(s){const m=String(s).match(/\b\d{4}\s+\d{2}[Xx*]{2}\s+[Xx*]{3,6}\s+\d{4}\b/);if(m)return safeMask(m[0]);const m2=String(s).match(/\b(?:\d{4}[ \-]*){3}\d{4}\b/);return m2?safeMask(m2[0]):'';}
 function classify(text){const s=String(text||'').toUpperCase();
-if(/QR\s*API\s*SETTLEMENT|TOTAL\s*\(POS\)|TOTAL\s*\(KBANK\)|PAYMENT\s+DETAIL|QR\s*PAYMENT\s*\(API\)/.test(s))return 'POS / QR SUMMARY';
-if(/DETAIL\s+REPORT|CARD\s+NUMBER/.test(s)&&/\bSALE(?:S)?\b/.test(s))return 'EDC DETAIL';
-if(/SETTLEMENT|GRAND\s+TOTAL|TOTAL\s+SALES/.test(s)&&!/DETAIL\s+REPORT/.test(s))return 'EDC SETTLEMENT';
-if(/\bSALE(?:S)?\b/.test(s)&&/(?:THB|\d+\.\d{2})/.test(s))return 'EDC RECEIPT';
-return 'OTHER';}
+ if(/QR\s*API\s*SETTLEMENT|TOTAL\s*\(POS\)|TOTAL\s*\(KBANK\)|PAYMENT\s+DETAIL|QR\s*PAYMENT\s*\(API\)|TOTAL\s+BILLS/i.test(s))return 'POS / QR SUMMARY';
+ const traceHits=(s.match(/\bTRACE\b/g)||[]).length;
+ if((/DETAIL\s+REPORT|CARD\s+NUMBER|CARD\s+NO/.test(s)||traceHits>=2||(s.match(/\bSALE\b/g)||[]).length>=3)&&/\bSALE(?:S)?\b/.test(s))return 'EDC DETAIL';
+ if(/SETTLEMENT|GRAND\s+TOTAL|TOTAL\s+SALES/.test(s))return 'EDC SETTLEMENT';
+ if(/\bSALE(?:S)?\b/.test(s)&&/(?:THB|\d+\.\d{2})/.test(s)&&/\bTRACE\b|CARD\s+(?:NO|NUMBER)/.test(s))return 'EDC RECEIPT';
+ return 'OTHER';}
 function cleanOcrText(raw){return String(raw||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').replace(/[‐‑–—]/g,'-').replace(/\bS[ A]{0,4}A[ L]{0,4}L[ E]{0,4}E\b/gi,'SALE');}
 // Parse transaction blocks; summary SALES and group totals are not customer transactions.
 function parseEDC(text,filename){
@@ -228,14 +229,20 @@ for(const mt of matches){
  const prefix=line.slice(0,mt.index),context=[...block.slice(-12),prefix].join('\n');
  const amount=Number(mt[2].replace(/,/g,''));if(!(amount>0&&amount<100000))continue;
  // Never accept SALE rows without at least one transaction identifier; bank totals lack these.
- const trace=(context.match(/TRACE\s*(?:NO\.?|#|:)?\s*[:#]?\s*(\d{4,9})/i)||[])[1]||'';
+ // Detail Report columns often show TRACE NO only once in the header.
+ // Transaction rows contain a bare six-digit trace immediately before DATE.
+ let trace=(context.match(/TRACE\s*(?:NO\.?|#|:)?\s*[:#]?\s*(\d{4,9})/i)||[])[1]||'';
+ if(!trace){const around=context.split('\n');const dateAt=around.findLastIndex(s=>/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/.test(s));
+  if(dateAt>=0){for(let j=dateAt-1;j>=Math.max(0,dateAt-3);j--){const m=around[j].trim().match(/^(\d{5,9})(?:\s+\w{3,12})?$/);if(m){trace=m[1];break;}}}
+ }
  const masked=extractCard(context);
  const date=dateFromContext(context);
  const times=context.match(/\b(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?\b/g)||[];
  const time=times.length?times[times.length-1]:'';
- if(!trace&&!masked&&!(date&&time))continue;
+ if(!trace&&!masked)continue; // DATE+TIME alone is not proof of a card transaction
  const kind=/BLUE\s*CREDIT/i.test(context)?'Blue Credit':/UOB\s*[- ]?VISA/i.test(context)?'UOB-Visa':/MASTER/i.test(context)?'MASTER':/VISA/i.test(context)?'VISA':'ไม่ทราบ';
- const r={...blankRecord(),date,time,type:kind,trace,masked,group:groupOf(kind),amount,source:filename,status:'ตรวจสอบ'};
+ const issues=[]; if(!date||!dayFromDate(date))issues.push('วันที่อ่านไม่ได้หรือไม่ถูกต้อง'); else if(!dayFromDate(date).startsWith(selectedMonth+'-'))issues.push('วัน/เดือน OCR นอกเดือนที่เลือก'); if(!trace)issues.push('ไม่มี TRACE'); if(!masked)issues.push('ไม่พบเลขบัตรปิดบัง'); if(Math.round(amount*100)%100!==0)issues.push('ยอดมีเศษสตางค์ โปรดดูภาพจริง');
+ const r={...blankRecord(),date,time,type:kind,trace,masked,group:groupOf(kind),amount,source:filename+(issues.length?' | ⚠ '+issues.join(', '):''),status:'ตรวจสอบ'};
  items.push(r);
  }
  block=[];lastSale=li;
@@ -243,49 +250,101 @@ for(const mt of matches){
  block.push(line);if(block.length>16)block.shift();
  }
 }
-return {type,items};}
+const dedup=[];const seen=new Set();
+ for(const r of items){const key=r.trace&&r.date?`TRACE:${r.date}/${r.trace}`:(r.masked&&r.time?`CARD:${r.date}/${r.masked}/${r.time}`:`RAW:${r.date}/${r.time}/${r.amount}`);
+  if(seen.has(key))continue;seen.add(key);dedup.push(r);}
+ return {type,items:dedup};}
 async function toImage(file){return new Promise((resolve,reject)=>{const u=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(u);resolve(img)};img.onerror=e=>{URL.revokeObjectURL(u);reject(e)};img.src=u})}
 function rectToCanvas(img,x,y,w,h,maxWidth=1200){const scale=Math.min(maxWidth/w,5);const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*scale));c.height=Math.max(1,Math.round(h*scale));const ctx=c.getContext('2d',{willReadFrequently:true});ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,x,y,w,h,0,0,c.width,c.height);return c;}
 // Find separate white-paper components by low-resolution flood fill; fallback full image or manual crop.
-function findReceiptBoxes(img){let ww=Math.min(470,img.naturalWidth),hh=Math.min(600,Math.max(90,Math.round(img.naturalHeight*ww/img.naturalWidth))),small=document.createElement('canvas');small.width=ww;small.height=hh;small.getContext('2d').drawImage(img,0,0,ww,hh);const raw=small.getContext('2d',{willReadFrequently:true}).getImageData(0,0,ww,hh).data;const visited=new Uint8Array(ww*hh),on=new Uint8Array(ww*hh);for(let y=0;y<hh;y++)for(let x=0;x<ww;x++){const k=y*ww+x,i=k*4;let rr=raw[i],gg=raw[i+1],bb=raw[i+2];on[k]=(rr>137&&gg>135&&bb>126&&rr+gg+bb>470)?1:0;}let out=[],queue=new Int32Array(ww*hh);for(let y=0;y<hh;y++)for(let x=0;x<ww;x++){const start=y*ww+x;if(!on[start]||visited[start])continue;let head=0,tail=0;visited[start]=1;queue[tail++]=start;let minx=x,maxx=x,miny=y,maxy=y;while(head<tail){let q=queue[head++],qx=q%ww,qy=Math.floor(q/ww);if(qx<minx)minx=qx;if(qx>maxx)maxx=qx;if(qy<miny)miny=qy;if(qy>maxy)maxy=qy;const neighbor=[q-1,q+1,q-ww,q+ww];for(let ni=0;ni<4;ni++){let n=neighbor[ni];if(n<0||n>=ww*hh)continue;if(ni===0&&qx===0||ni===1&&qx===ww-1)continue;if(on[n]&&!visited[n]){visited[n]=1;queue[tail++]=n;}}}let cw=maxx-minx+1,ch=maxy-miny+1;if(cw>=18&&ch>=35&&tail>550&&cw*ch>1500){let scx=img.naturalWidth/ww,scy=img.naturalHeight/hh;out.push({x:Math.max(0,Math.floor(minx*scx)-10),y:Math.max(0,Math.floor(miny*scy)-10),w:Math.min(img.naturalWidth-Math.floor(minx*scx)+10,Math.ceil(cw*scx)+20),h:Math.min(img.naturalHeight-Math.floor(miny*scy)+10,Math.ceil(ch*scy)+20)});}}
-// If papers overlap, fewer components may be detected; manual crop remains available.
-return out.filter(z=>z.w>65&&z.h>100).sort((a,b)=>a.x-b.x).slice(0,15);}
-function sliceBox(box){let sections=[],step=box.h>850?Math.max(500,Math.round(box.w*2.2)):box.h, overlap=box.h>850?Math.min(125,Math.floor(step*.2)):0;for(let y=box.y;y<box.y+box.h;y+=step-overlap){let h=Math.min(step,box.y+box.h-y);sections.push({...box,y,h});if(y+h>=box.y+box.h)break;}return sections;}
+// V3.2: projection segmentation: detect separate paper columns, then independent rows.
+// A whole long Detail Report is preferred over duplicate individual receipts / settlement.
+function findReceiptBoxes(img){
+ const ww=Math.min(470,img.naturalWidth),hh=Math.round(img.naturalHeight*ww/img.naturalWidth);
+ const temp=document.createElement('canvas');temp.width=ww;temp.height=hh;
+ const ctx=temp.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0,ww,hh);
+ const pix=ctx.getImageData(0,0,ww,hh).data,mask=new Uint8Array(ww*hh),cols=new Float32Array(ww);
+ for(let y=0;y<hh;y++)for(let x=0;x<ww;x++){
+  const k=y*ww+x,i=k*4,r=pix[i],g=pix[i+1],b=pix[i+2];
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+  if(r>145&&g>145&&b>135&&mx-mn<65){mask[k]=1;cols[x]++;}
+ }
+ const runs=(values,limit,minWidth)=>{let out=[],st=-1;
+  for(let i=0;i<=values.length;i++){
+   let active=i<values.length&&values[i]>limit;
+   if(active&&st<0)st=i;
+   if(!active&&st>=0){if(i-st>=minWidth)out.push([st,i]);st=-1;}
+  }return out;};
+ const columns=runs(Array.from(cols,v=>v/hh),.18,13);let out=[];
+ for(const [x0,x1] of columns){
+  const rowScore=new Float32Array(hh),span=x1-x0;
+  for(let y=0;y<hh;y++)for(let x=x0;x<x1;x++)rowScore[y]+=mask[y*ww+x];
+  const pieces=runs(Array.from(rowScore,v=>v/span),.18,13);
+  for(const [y0,y1] of pieces){
+   if(y1-y0<13)continue;
+   const scx=img.naturalWidth/ww,scy=img.naturalHeight/hh;
+   const pad=4;const x=Math.max(0,Math.round(x0*scx)-pad),y=Math.max(0,Math.round(y0*scy)-pad);
+   const right=Math.min(img.naturalWidth,Math.round(x1*scx)+pad),bottom=Math.min(img.naturalHeight,Math.round(y1*scy)+pad);
+   const w=right-x,h=bottom-y;
+   if(w>55&&h>58)out.push({x,y,w,h,aspect:h/w,coverage:h/img.naturalHeight});
+  }
+ }
+ // When a photographed long transaction roll is present, it is the authoritative
+ // detail source. Settlement and individual copies in the same photo must not be
+ // counted as extra transactions. Manual crop remains available for missing slips.
+ const detail=out.filter(b=>b.aspect>=6&&b.coverage>=.65);
+ if(detail.length){out=detail;}
+ out.sort((a,b)=>a.x-b.x||a.y-b.y);
+ return out.slice(0,30);
+}
+function sliceBox(box){
+ // A 1,500px-high roll is read in 2–3 large overlapping bands, not tiny fragments.
+ // Overlap gives the OCR enough context to keep DATE, TRACE and SALE together.
+ const step=Math.max(480,Math.round(box.w*4.6)),overlap=Math.min(105,Math.round(step*.16));
+ if(box.h<=step)return [box];let sections=[];
+ for(let y=box.y;y<box.y+box.h;y+=step-overlap){let h=Math.min(step,box.y+box.h-y);
+  sections.push({...box,y,h});if(y+h>=box.y+box.h)break;}
+ return sections;
+}
 function enhanceCanvas(c){const ctx=c.getContext('2d',{willReadFrequently:true});const im=ctx.getImageData(0,0,c.width,c.height),d=im.data;let min=255,max=0;for(let i=0;i<d.length;i+=4){const v=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);if(v<min)min=v;if(v>max)max=v;d[i]=d[i+1]=d[i+2]=v;}const span=Math.max(max-min,45);for(let i=0;i<d.length;i+=4){const v=Math.max(0,Math.min(255,Math.round((d[i]-min)*255/span)));d[i]=d[i+1]=d[i+2]=v;}ctx.putImageData(im,0,0);return c;}
 async function processImage(img,filename,manualBox=null){
-const boxes=manualBox?[manualBox]:findReceiptBoxes(img);
-if(!boxes.length)boxes.push({x:0,y:0,w:img.naturalWidth,h:img.naturalHeight});
-const all=[],types=[];const worker=await Tesseract.createWorker('eng+tha',1,{logger:m=>{if(m.status==='recognizing text')$('bar').style.width=(Math.round(m.progress*100))+'%';}});
-try{
- await worker.setParameters({tessedit_pageseg_mode:6,preserve_interword_spaces:'1'});
- for(let bi=0;bi<boxes.length;bi++){
-  const box=boxes[bi],pieces=sliceBox(box),parts=[];
-  for(let si=0;si<pieces.length;si++){
-    $('bar').style.width='0%';setStatus(`กำลังอ่าน ${filename} • กระดาษ ${bi+1}/${boxes.length} • ส่วน ${si+1}/${pieces.length}`);
-    const z=pieces[si],canvas=rectToCanvas(img,z.x,z.y,z.w,z.h,1200);
-    const ret=await worker.recognize(canvas);const raw=ret.data.text||'';parts.push(raw);
-  }
-  const full=parts.join('\n'),out=parseEDC(full,filename+` / กระดาษ ${bi+1}`);
-  let best=out;
-  // Second OCR pass only when first pass finds no transactions, not all photos.
-  if(full.length>12 && pieces.length<=2 && (!out.items.length || $('verifyOcr').checked)){
-    setStatus(`กำลังสแกนซ้ำเพิ่มความคมชัด: ${filename} • กระดาษ ${bi+1}/${boxes.length}`);
-    const boosted=enhanceCanvas(rectToCanvas(img,box.x,box.y,box.w,box.h,1400));
-    const retry=await worker.recognize(boosted);const again=parseEDC(retry.data.text||'',filename+` / สแกนซ้ำ`);
-    if(again.items.length>best.items.length)best=again;
-    else if(again.items.length && out.items.length){
-      for(const r of out.items){
-        const other=again.items.find(a=>(a.trace&&r.trace&&a.trace===r.trace)||(a.masked&&r.masked&&a.masked===r.masked&&a.time&&a.time===r.time));
-        if(other&&Math.abs(other.amount-r.amount)>0.009)r.source+=` | ⚠ OCR ยอดไม่ตรง 2 รอบ: ${r.amount.toFixed(2)} / ${other.amount.toFixed(2)} บาท`;
-      }
+ const boxes=manualBox?[manualBox]:findReceiptBoxes(img);
+ if(!boxes.length)boxes.push({x:0,y:0,w:img.naturalWidth,h:img.naturalHeight});
+ const all=[],types=[];
+ const worker=await Tesseract.createWorker('eng',1,{logger:m=>{if(m.status==='recognizing text')$('bar').style.width=(Math.round(m.progress*100))+'%';}});
+ try{
+  await worker.setParameters({tessedit_pageseg_mode:6,preserve_interword_spaces:'1',user_defined_dpi:'300'});
+  for(let bi=0;bi<boxes.length;bi++){
+   const box=boxes[bi],pieces=sliceBox(box),parts=[];
+   for(let si=0;si<pieces.length;si++){
+    $('bar').style.width='0%';setStatus(`กำลังอ่าน ${filename} • บริเวณ ${bi+1}/${boxes.length} • ส่วน ${si+1}/${pieces.length}`);
+    const z=pieces[si],canvas=rectToCanvas(img,z.x,z.y,z.w,z.h,Math.min(850,Math.max(650,z.w*3.0)));
+    const ret=await worker.recognize(canvas);parts.push(ret.data.text||'');
+   }
+   const full=parts.join('\n'),first=parseEDC(full,filename+` / กระดาษ ${bi+1}`);
+   let best=first;
+   // The browser must never claim to reconstruct missing detail from a fuzzy image.
+   // Retry individual/slender pieces; avoid a giant >10 MP canvas on mobile.
+   if((!first.items.length||($('verifyOcr').checked&&box.aspect<3.5))&&full.length>8){
+    const retryParts=[];
+    for(const piece of pieces){
+     const boosted=enhanceCanvas(rectToCanvas(img,piece.x,piece.y,piece.w,piece.h,Math.min(950,Math.max(720,piece.w*3.2))));
+     const again=await worker.recognize(boosted);retryParts.push(again.data.text||'');
     }
-    ocrLog.push(`${filename} / กระดาษ ${bi+1} สแกนซ้ำ:\n${(retry.data.text||'').slice(0,2800)}`);
+    const againText=retryParts.join('\n'),retry=parseEDC(againText,filename+` / Contrast`);
+    if(retry.items.length>first.items.length)best=retry;
+    for(const r of best.items){
+     const other=(best===first?retry:first).items.find(a=>(a.trace&&r.trace&&a.trace===r.trace)||(a.masked&&r.masked&&a.masked===r.masked&&a.time&&r.time&&a.time===r.time));
+     if(other&&Math.abs(other.amount-r.amount)>0.009)r.source+=` | ⚠ OCR ต่างกัน ${r.amount.toFixed(2)} / ${other.amount.toFixed(2)} บาท`;
+    }
+    ocrLog.push(`${filename} / โซน ${bi+1} (contrast):\n${againText.slice(0,7000)}`);
+   }
+   all.push(...best.items);types.push(best.type);
+   ocrLog.push(`${filename} / โซน ${bi+1} (${first.type})\n${full.slice(0,9000)}`);
   }
-  all.push(...best.items);types.push(best.type);
-  ocrLog.push(`${filename} / กระดาษ ${bi+1} (${out.type})\n${full.slice(0,7000)}`);
- }
-}finally{await worker.terminate()}
-return {newItems:all,types,boxes};}
+ }finally{await worker.terminate()}
+ return {newItems:all,types,boxes};
+}
 async function loadFiles(fl){for(const f of [...fl]){if(!f.type.startsWith('image/'))continue;try{const im=await toImage(f);images.push({file:f,img:im});let c=document.createElement('span');c.className='chip';c.textContent=f.name+' ('+im.naturalWidth+'×'+im.naturalHeight+')';$('fileList').append(c);}catch(e){setStatus('เปิดรูปไม่ได้: '+f.name)}}setStatus(`เลือกไฟล์แล้ว ${images.length} ภาพ • กด “สแกนเอกสารทั้งหมด”`);}
 async function scanImages(){if(busy)return;if(!images.length){setStatus('ยังไม่ได้เลือกรูป');return;}if(!window.Tesseract){setStatus('ไม่พบไลบรารี Tesseract.js โปรดตรวจการเชื่อมต่ออินเทอร์เน็ต');return;}busy=true;$('scanAll').disabled=true;let added=0,dup=0;try{for(let i=0;i<images.length;i++){let item=images[i];const z=await processImage(item.img,item.file.name);const n=addRecords(z.newItems);added+=n.added;dup+=n.dup;}setStatus(`สแกนเสร็จ • พบ ${added} รายการใหม่ • ซ้ำ ${dup} • ต้องตรวจภาพ/จำนวนเงิน/วันที่ แล้วเปลี่ยนสถานะเป็น “ยืนยัน” หากรายการน้อยกว่าจริงให้ใช้ “เลือกกรอบในภาพ”`);}catch(e){setStatus('สแกนมีข้อผิดพลาด: '+String(e.message||e));}finally{busy=false;$('scanAll').disabled=false;$('bar').style.width='0%';render();}}
 function cropCanvasLoad(){if(!images.length){setStatus('กรุณาเลือกรูปก่อน');return;}const img=images[cropImageIndex].img,c=$('cropCanvas');$('cropImageName').textContent=`ภาพ ${cropImageIndex+1}/${images.length}: ${images[cropImageIndex].file.name}`;let w=Math.min(900,img.naturalWidth);c.width=w;c.height=Math.round(img.naturalHeight*w/img.naturalWidth);let ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);cropSelect=null;cropBox=null;$('cropBox').classList.add('active');}
@@ -295,7 +354,8 @@ $('cropCanvas').addEventListener('pointerdown',e=>{e.preventDefault();$('cropCan
 $('scanCrop').addEventListener('click',async()=>{if(!cropBox||cropBox.w<50||cropBox.h<50){setStatus('กรุณาลากกรอบให้ครอบใบสลิปก่อน');return;}if(busy)return;if(!window.Tesseract){setStatus('ไม่พบไลบรารี OCR');return;}busy=true;try{let img=images[cropImageIndex];const z=await processImage(img.img,img.file.name,cropBox);const n=addRecords(z.newItems);setStatus(`สแกนกรอบ: เพิ่ม ${n.added} รายการ, ซ้ำ ${n.dup} • ตรวจยอดและกดยืนยันก่อน Export`);}catch(e){setStatus('สแกนกรอบผิดพลาด: '+String(e));}finally{busy=false;render();}});
 $('slipFiles').addEventListener('change',e=>loadFiles(e.target.files));$('cameraFiles').addEventListener('change',e=>loadFiles(e.target.files));$('cameraBtn').addEventListener('click',()=>$('cameraFiles').click());$('folderBtn').addEventListener('click',()=>$('folderFiles').click());$('folderFiles').addEventListener('change',e=>loadFiles(e.target.files));$('manualCrop').addEventListener('click',cropCanvasLoad);$('nextCropImage').addEventListener('click',()=>{if(!images.length){setStatus('กรุณาเลือกภาพก่อน');return;}cropImageIndex=(cropImageIndex+1)%images.length;cropCanvasLoad()});$('cancelCrop').addEventListener('click',()=>$('cropBox').classList.remove('active'));$('scanAll').addEventListener('click',scanImages);
 for(const id of ['settlementInput','qrInput','posInput'])$(id).addEventListener('input',()=>{save();render()});$('loadExample').addEventListener('click',()=>{const data=examples.map(([time,type,masked,trace,amount])=>({...blankRecord(),date:'28/10/2026',time,type,masked,trace,group:groupOf(type),amount,source:'ตัวอย่างตรวจแล้ว: Detail Report 28/10/2569',status:'ยืนยัน'}));const result=addRecords(data);$('settlementInput').value='1065';$('qrInput').value='14828';$('posInput').value='25237';selectedMonth='2026-10';selectedDay=28;$('reportMonth').value=selectedMonth;$('reportDay').value='28';save();renderDailyInputs();render();setStatus(`โหลดตัวอย่าง 10 บิล • เพิ่ม ${result.added} / ซ้ำ ${result.dup} • กรอกยอด Settlement 1,065 บาทแล้ว`);});
-$('addRow').addEventListener('click',()=>{records.push(blankRecord());save();render();});$('clearData').addEventListener('click',()=>{if(confirm('ลบข้อมูลสลิปและยอดอ้างอิงทั้งหมดในเบราว์เซอร์เครื่องนี้ใช่หรือไม่?')){records=[];images=[];cropImageIndex=0;ocrLog=[];$('fileList').replaceChildren();$('settlementInput').value='';$('qrInput').value='';$('posInput').value='';dailyInputs={};dayRefs={};save();renderDailyInputs();render();setStatus('ล้างข้อมูลเรียบร้อย');}});$('showOcr').addEventListener('click',()=>{$('ocrPanel').style.display=$('ocrPanel').style.display==='none'?'block':'none'});
+$('addRow').addEventListener('click',()=>{records.push(blankRecord());save();render();});
+$('clearPending').addEventListener('click',()=>{const n=records.filter(r=>r.status==='ตรวจสอบ').length;if(!n){setStatus('ไม่มี OCR รอตรวจสอบ');return;}if(confirm(`ลบเฉพาะ ${n} รายการที่ยังไม่ยืนยัน? รายการยืนยันแล้วจะคงไว้`)){records=records.filter(r=>r.status!=='ตรวจสอบ');save();renderDailyInputs();render();setStatus('ล้างรายการ OCR ที่ยังไม่ยืนยัน '+n+' รายการแล้ว');}});$('clearData').addEventListener('click',()=>{if(confirm('ลบข้อมูลสลิปและยอดอ้างอิงทั้งหมดในเบราว์เซอร์เครื่องนี้ใช่หรือไม่?')){records=[];images=[];cropImageIndex=0;ocrLog=[];$('fileList').replaceChildren();$('settlementInput').value='';$('qrInput').value='';$('posInput').value='';dailyInputs={};dayRefs={};save();renderDailyInputs();render();setStatus('ล้างข้อมูลเรียบร้อย');}});$('showOcr').addEventListener('click',()=>{$('ocrPanel').style.display=$('ocrPanel').style.display==='none'?'block':'none'});
 const XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 function downloadBlob(content,name,mime){const b=content instanceof Blob?content:new Blob([content],{type:mime});const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.target='_blank';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);}
 function externalBrowserHelp(message){$('lineBrowserHelp').hidden=false;setStatus((message?message+'\n':'')+'LINE อาจบล็อกดาวน์โหลด: กด ⋮ แล้วเลือก เปิดในเบราว์เซอร์ภายนอก (Chrome/Samsung Internet)');$('lineBrowserHelp').scrollIntoView({behavior:'smooth',block:'start'});}
